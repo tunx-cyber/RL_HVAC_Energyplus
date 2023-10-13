@@ -1,0 +1,743 @@
+**ACTUATORS**
+Actuator,Weather Data,Outdoor Dry Bulb,Environment;
+Actuator,Weather Data,Outdoor Dew Point,Environment;
+Actuator,Weather Data,Outdoor Relative Humidity,Environment;
+Actuator,Weather Data,Diffuse Solar,Environment;
+Actuator,Weather Data,Direct Solar,Environment;
+Actuator,Weather Data,Wind Speed,Environment;
+Actuator,Weather Data,Wind Direction,Environment;
+Actuator,Schedule:Compact,Schedule Value,OCCUPY-1;
+Actuator,Schedule:Compact,Schedule Value,LIGHTS-1;
+Actuator,Schedule:Compact,Schedule Value,EQUIP-1;
+Actuator,Schedule:Compact,Schedule Value,INFIL-SCH;
+Actuator,Schedule:Compact,Schedule Value,ACTSCHD;
+Actuator,Schedule:Compact,Schedule Value,SHADETRANSSCH;
+Actuator,Schedule:Compact,Schedule Value,HTG-SETP-SCH;
+Actuator,Schedule:Compact,Schedule Value,CLG-SETP-SCH;
+Actuator,Schedule:Compact,Schedule Value,FANAVAILSCHED;
+Actuator,Schedule:Compact,Schedule Value,MIN OA SCHED;
+Actuator,Schedule:Compact,Schedule Value,HVACTEMPLATE-ALWAYS 4;
+Actuator,Schedule:Compact,Schedule Value,HVACTEMPLATE-ALWAYS 1;
+Actuator,Schedule:Compact,Schedule Value,HVACTEMPLATE-ALWAYS 12.8;
+Actuator,Schedule:Compact,Schedule Value,HVACTEMPLATE-ALWAYS 10.0;
+Actuator,Schedule:Compact,Schedule Value,HVACTEMPLATE-ALWAYS 7.22;
+Actuator,Schedule:Compact,Schedule Value,HVACTEMPLATE-ALWAYS 29.4;
+Actuator,Material,Surface Property Solar Absorptance,WD10;
+Actuator,Material,Surface Property Thermal Absorptance,WD10;
+Actuator,Material,Surface Property Visible Absorptance,WD10;
+Actuator,Material,Surface Property Solar Absorptance,RG01;
+Actuator,Material,Surface Property Thermal Absorptance,RG01;
+Actuator,Material,Surface Property Visible Absorptance,RG01;
+Actuator,Material,Surface Property Solar Absorptance,BR01;
+Actuator,Material,Surface Property Thermal Absorptance,BR01;
+Actuator,Material,Surface Property Visible Absorptance,BR01;
+Actuator,Material,Surface Property Solar Absorptance,IN46;
+Actuator,Material,Surface Property Thermal Absorptance,IN46;
+Actuator,Material,Surface Property Visible Absorptance,IN46;
+Actuator,Material,Surface Property Solar Absorptance,WD01;
+Actuator,Material,Surface Property Thermal Absorptance,WD01;
+Actuator,Material,Surface Property Visible Absorptance,WD01;
+Actuator,Material,Surface Property Solar Absorptance,PW03;
+Actuator,Material,Surface Property Thermal Absorptance,PW03;
+Actuator,Material,Surface Property Visible Absorptance,PW03;
+Actuator,Material,Surface Property Solar Absorptance,IN02;
+Actuator,Material,Surface Property Thermal Absorptance,IN02;
+Actuator,Material,Surface Property Visible Absorptance,IN02;
+Actuator,Material,Surface Property Solar Absorptance,GP01;
+Actuator,Material,Surface Property Thermal Absorptance,GP01;
+Actuator,Material,Surface Property Visible Absorptance,GP01;
+Actuator,Material,Surface Property Solar Absorptance,GP02;
+Actuator,Material,Surface Property Thermal Absorptance,GP02;
+Actuator,Material,Surface Property Visible Absorptance,GP02;
+Actuator,Material,Surface Property Solar Absorptance,CC03;
+Actuator,Material,Surface Property Thermal Absorptance,CC03;
+Actuator,Material,Surface Property Visible Absorptance,CC03;
+Actuator,Material,Surface Property Solar Absorptance,CP01;
+Actuator,Material,Surface Property Thermal Absorptance,CP01;
+Actuator,Material,Surface Property Visible Absorptance,CP01;
+Actuator,Material,Surface Property Solar Absorptance,MAT-CLNG-1;
+Actuator,Material,Surface Property Thermal Absorptance,MAT-CLNG-1;
+Actuator,Material,Surface Property Visible Absorptance,MAT-CLNG-1;
+Actuator,People,Number of People,SPACE1-1 PEOPLE 1;
+Actuator,People,Number of People,SPACE2-1 PEOPLE 1;
+Actuator,People,Number of People,SPACE3-1 PEOPLE 1;
+Actuator,People,Number of People,SPACE4-1 PEOPLE 1;
+Actuator,People,Number of People,SPACE5-1 PEOPLE 1;
+Actuator,Lights,Electricity Rate,SPACE1-1 LIGHTS 1;
+Actuator,Lights,Electricity Rate,SPACE2-1 LIGHTS 1;
+Actuator,Lights,Electricity Rate,SPACE3-1 LIGHTS 1;
+Actuator,Lights,Electricity Rate,SPACE4-1 LIGHTS 1;
+Actuator,Lights,Electricity Rate,SPACE5-1 LIGHTS 1;
+Actuator,ElectricEquipment,Electricity Rate,SPACE1-1 ELECEQ 1;
+Actuator,ElectricEquipment,Electricity Rate,SPACE2-1 ELECEQ 1;
+Actuator,ElectricEquipment,Electricity Rate,SPACE3-1 ELECEQ 1;
+Actuator,ElectricEquipment,Electricity Rate,SPACE4-1 ELECEQ 1;
+Actuator,ElectricEquipment,Electricity Rate,SPACE5-1 ELECEQ 1;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,MAIN SOUTH OVERHANG;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,MAIN SOUTH OVERHANG;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,Mir-MAIN SOUTH OVERHANG;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,Mir-MAIN SOUTH OVERHANG;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,SOUTH DOOR OVERHANG;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,SOUTH DOOR OVERHANG;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,Mir-SOUTH DOOR OVERHANG;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,Mir-SOUTH DOOR OVERHANG;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,WALL-1PF;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,WALL-1PF;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,WALL-1PR;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,WALL-1PR;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,WALL-1PB;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,WALL-1PB;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,WALL-1PL;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,WALL-1PL;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,C1-1P;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,C1-1P;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,C2-1P;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,C2-1P;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,C3-1P;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,C3-1P;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,C4-1P;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,C4-1P;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,C5-1P;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,C5-1P;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,TOP-1;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,TOP-1;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,FRONT-1;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,FRONT-1;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,SB12;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,SB12;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,SB14;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,SB14;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,SB15;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,SB15;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,F1-1;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,F1-1;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,C1-1;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,C1-1;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,WF-1;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,WF-1;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,DF-1;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,DF-1;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,RIGHT-1;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,RIGHT-1;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,SB21;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,SB21;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,SB23;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,SB23;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,SB25;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,SB25;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,F2-1;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,F2-1;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,C2-1;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,C2-1;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,WR-1;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,WR-1;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,BACK-1;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,BACK-1;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,SB32;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,SB32;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,SB34;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,SB34;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,SB35;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,SB35;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,F3-1;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,F3-1;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,C3-1;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,C3-1;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,WB-1;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,WB-1;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,DB-1;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,DB-1;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,LEFT-1;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,LEFT-1;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,SB41;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,SB41;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,SB43;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,SB43;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,SB45;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,SB45;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,F4-1;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,F4-1;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,C4-1;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,C4-1;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,WL-1;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,WL-1;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,SB51;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,SB51;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,SB52;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,SB52;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,SB53;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,SB53;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,SB54;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,SB54;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,F5-1;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,F5-1;
+Actuator,Surface,Interior Surface Convection Heat Transfer Coefficient,C5-1;
+Actuator,Surface,Exterior Surface Convection Heat Transfer Coefficient,C5-1;
+Actuator,Surface,Construction State,WALL-1PF;
+Actuator,Surface,Construction State,WALL-1PR;
+Actuator,Surface,Construction State,WALL-1PB;
+Actuator,Surface,Construction State,WALL-1PL;
+Actuator,Surface,Construction State,C1-1P;
+Actuator,Surface,Construction State,C2-1P;
+Actuator,Surface,Construction State,C3-1P;
+Actuator,Surface,Construction State,C4-1P;
+Actuator,Surface,Construction State,C5-1P;
+Actuator,Surface,Construction State,TOP-1;
+Actuator,Surface,Construction State,FRONT-1;
+Actuator,Surface,Construction State,SB12;
+Actuator,Surface,Construction State,SB14;
+Actuator,Surface,Construction State,SB15;
+Actuator,Surface,Construction State,F1-1;
+Actuator,Surface,Construction State,C1-1;
+Actuator,Surface,Construction State,WF-1;
+Actuator,Surface,Construction State,DF-1;
+Actuator,Surface,Construction State,RIGHT-1;
+Actuator,Surface,Construction State,SB21;
+Actuator,Surface,Construction State,SB23;
+Actuator,Surface,Construction State,SB25;
+Actuator,Surface,Construction State,F2-1;
+Actuator,Surface,Construction State,C2-1;
+Actuator,Surface,Construction State,WR-1;
+Actuator,Surface,Construction State,BACK-1;
+Actuator,Surface,Construction State,SB32;
+Actuator,Surface,Construction State,SB34;
+Actuator,Surface,Construction State,SB35;
+Actuator,Surface,Construction State,F3-1;
+Actuator,Surface,Construction State,C3-1;
+Actuator,Surface,Construction State,WB-1;
+Actuator,Surface,Construction State,DB-1;
+Actuator,Surface,Construction State,LEFT-1;
+Actuator,Surface,Construction State,SB41;
+Actuator,Surface,Construction State,SB43;
+Actuator,Surface,Construction State,SB45;
+Actuator,Surface,Construction State,F4-1;
+Actuator,Surface,Construction State,C4-1;
+Actuator,Surface,Construction State,WL-1;
+Actuator,Surface,Construction State,SB51;
+Actuator,Surface,Construction State,SB52;
+Actuator,Surface,Construction State,SB53;
+Actuator,Surface,Construction State,SB54;
+Actuator,Surface,Construction State,F5-1;
+Actuator,Surface,Construction State,C5-1;
+Actuator,Surface,View Factor To Ground,WALL-1PF;
+Actuator,Surface,Outdoor Air Drybulb Temperature,WALL-1PF;
+Actuator,Surface,Outdoor Air Wetbulb Temperature,WALL-1PF;
+Actuator,Surface,Outdoor Air Wind Speed,WALL-1PF;
+Actuator,Surface,Outdoor Air Wind Direction,WALL-1PF;
+Actuator,Surface,View Factor To Ground,WALL-1PR;
+Actuator,Surface,Outdoor Air Drybulb Temperature,WALL-1PR;
+Actuator,Surface,Outdoor Air Wetbulb Temperature,WALL-1PR;
+Actuator,Surface,Outdoor Air Wind Speed,WALL-1PR;
+Actuator,Surface,Outdoor Air Wind Direction,WALL-1PR;
+Actuator,Surface,View Factor To Ground,WALL-1PB;
+Actuator,Surface,Outdoor Air Drybulb Temperature,WALL-1PB;
+Actuator,Surface,Outdoor Air Wetbulb Temperature,WALL-1PB;
+Actuator,Surface,Outdoor Air Wind Speed,WALL-1PB;
+Actuator,Surface,Outdoor Air Wind Direction,WALL-1PB;
+Actuator,Surface,View Factor To Ground,WALL-1PL;
+Actuator,Surface,Outdoor Air Drybulb Temperature,WALL-1PL;
+Actuator,Surface,Outdoor Air Wetbulb Temperature,WALL-1PL;
+Actuator,Surface,Outdoor Air Wind Speed,WALL-1PL;
+Actuator,Surface,Outdoor Air Wind Direction,WALL-1PL;
+Actuator,Surface,View Factor To Ground,TOP-1;
+Actuator,Surface,Outdoor Air Drybulb Temperature,TOP-1;
+Actuator,Surface,Outdoor Air Wetbulb Temperature,TOP-1;
+Actuator,Surface,Outdoor Air Wind Speed,TOP-1;
+Actuator,Surface,Outdoor Air Wind Direction,TOP-1;
+Actuator,Surface,View Factor To Ground,FRONT-1;
+Actuator,Surface,Outdoor Air Drybulb Temperature,FRONT-1;
+Actuator,Surface,Outdoor Air Wetbulb Temperature,FRONT-1;
+Actuator,Surface,Outdoor Air Wind Speed,FRONT-1;
+Actuator,Surface,Outdoor Air Wind Direction,FRONT-1;
+Actuator,Surface,View Factor To Ground,WF-1;
+Actuator,Surface,Outdoor Air Drybulb Temperature,WF-1;
+Actuator,Surface,Outdoor Air Wetbulb Temperature,WF-1;
+Actuator,Surface,Outdoor Air Wind Speed,WF-1;
+Actuator,Surface,Outdoor Air Wind Direction,WF-1;
+Actuator,Surface,View Factor To Ground,DF-1;
+Actuator,Surface,Outdoor Air Drybulb Temperature,DF-1;
+Actuator,Surface,Outdoor Air Wetbulb Temperature,DF-1;
+Actuator,Surface,Outdoor Air Wind Speed,DF-1;
+Actuator,Surface,Outdoor Air Wind Direction,DF-1;
+Actuator,Surface,View Factor To Ground,RIGHT-1;
+Actuator,Surface,Outdoor Air Drybulb Temperature,RIGHT-1;
+Actuator,Surface,Outdoor Air Wetbulb Temperature,RIGHT-1;
+Actuator,Surface,Outdoor Air Wind Speed,RIGHT-1;
+Actuator,Surface,Outdoor Air Wind Direction,RIGHT-1;
+Actuator,Surface,View Factor To Ground,WR-1;
+Actuator,Surface,Outdoor Air Drybulb Temperature,WR-1;
+Actuator,Surface,Outdoor Air Wetbulb Temperature,WR-1;
+Actuator,Surface,Outdoor Air Wind Speed,WR-1;
+Actuator,Surface,Outdoor Air Wind Direction,WR-1;
+Actuator,Surface,View Factor To Ground,BACK-1;
+Actuator,Surface,Outdoor Air Drybulb Temperature,BACK-1;
+Actuator,Surface,Outdoor Air Wetbulb Temperature,BACK-1;
+Actuator,Surface,Outdoor Air Wind Speed,BACK-1;
+Actuator,Surface,Outdoor Air Wind Direction,BACK-1;
+Actuator,Surface,View Factor To Ground,WB-1;
+Actuator,Surface,Outdoor Air Drybulb Temperature,WB-1;
+Actuator,Surface,Outdoor Air Wetbulb Temperature,WB-1;
+Actuator,Surface,Outdoor Air Wind Speed,WB-1;
+Actuator,Surface,Outdoor Air Wind Direction,WB-1;
+Actuator,Surface,View Factor To Ground,DB-1;
+Actuator,Surface,Outdoor Air Drybulb Temperature,DB-1;
+Actuator,Surface,Outdoor Air Wetbulb Temperature,DB-1;
+Actuator,Surface,Outdoor Air Wind Speed,DB-1;
+Actuator,Surface,Outdoor Air Wind Direction,DB-1;
+Actuator,Surface,View Factor To Ground,LEFT-1;
+Actuator,Surface,Outdoor Air Drybulb Temperature,LEFT-1;
+Actuator,Surface,Outdoor Air Wetbulb Temperature,LEFT-1;
+Actuator,Surface,Outdoor Air Wind Speed,LEFT-1;
+Actuator,Surface,Outdoor Air Wind Direction,LEFT-1;
+Actuator,Surface,View Factor To Ground,WL-1;
+Actuator,Surface,Outdoor Air Drybulb Temperature,WL-1;
+Actuator,Surface,Outdoor Air Wetbulb Temperature,WL-1;
+Actuator,Surface,Outdoor Air Wind Speed,WL-1;
+Actuator,Surface,Outdoor Air Wind Direction,WL-1;
+Actuator,Zone,Outdoor Air Drybulb Temperature,PLENUM-1;
+Actuator,Zone,Outdoor Air Wetbulb Temperature,PLENUM-1;
+Actuator,Zone,Outdoor Air Wind Speed,PLENUM-1;
+Actuator,Zone,Outdoor Air Wind Direction,PLENUM-1;
+Actuator,Zone,Outdoor Air Drybulb Temperature,SPACE1-1;
+Actuator,Zone,Outdoor Air Wetbulb Temperature,SPACE1-1;
+Actuator,Zone,Outdoor Air Wind Speed,SPACE1-1;
+Actuator,Zone,Outdoor Air Wind Direction,SPACE1-1;
+Actuator,Zone,Outdoor Air Drybulb Temperature,SPACE2-1;
+Actuator,Zone,Outdoor Air Wetbulb Temperature,SPACE2-1;
+Actuator,Zone,Outdoor Air Wind Speed,SPACE2-1;
+Actuator,Zone,Outdoor Air Wind Direction,SPACE2-1;
+Actuator,Zone,Outdoor Air Drybulb Temperature,SPACE3-1;
+Actuator,Zone,Outdoor Air Wetbulb Temperature,SPACE3-1;
+Actuator,Zone,Outdoor Air Wind Speed,SPACE3-1;
+Actuator,Zone,Outdoor Air Wind Direction,SPACE3-1;
+Actuator,Zone,Outdoor Air Drybulb Temperature,SPACE4-1;
+Actuator,Zone,Outdoor Air Wetbulb Temperature,SPACE4-1;
+Actuator,Zone,Outdoor Air Wind Speed,SPACE4-1;
+Actuator,Zone,Outdoor Air Wind Direction,SPACE4-1;
+Actuator,Zone,Outdoor Air Drybulb Temperature,SPACE5-1;
+Actuator,Zone,Outdoor Air Wetbulb Temperature,SPACE5-1;
+Actuator,Zone,Outdoor Air Wind Speed,SPACE5-1;
+Actuator,Zone,Outdoor Air Wind Direction,SPACE5-1;
+Actuator,Zone Infiltration,Air Exchange Flow Rate,SPACE1-1 INFIL 1;
+Actuator,Zone Infiltration,Air Exchange Flow Rate,SPACE2-1 INFIL 1;
+Actuator,Zone Infiltration,Air Exchange Flow Rate,SPACE3-1 INFIL 1;
+Actuator,Zone Infiltration,Air Exchange Flow Rate,SPACE4-1 INFIL 1;
+Actuator,Zone Infiltration,Air Exchange Flow Rate,SPACE5-1 INFIL 1;
+Actuator,Plant Loop Overall,On/Off Supervisory,HOT WATER LOOP HOT WATER LOOP;
+Actuator,Supply Side Half Loop,On/Off Supervisory,HOT WATER LOOP HOT WATER LOOP;
+Actuator,Demand Side Half Loop,On/Off Supervisory,HOT WATER LOOP HOT WATER LOOP;
+Actuator,Demand Side Branch,On/Off Supervisory,HOT WATER LOOP HW DEMAND INLET BRANCH;
+Actuator,Plant Component Pipe:Adiabatic,On/Off Supervisory,HOT WATER LOOP HW DEMAND INLET PIPE;
+Actuator,Demand Side Branch,On/Off Supervisory,SPACE5-1 REHEAT COIL HW BRANCH;
+Actuator,Plant Component Coil:Heating:Water,On/Off Supervisory,SPACE5-1 REHEAT COIL;
+Actuator,Demand Side Branch,On/Off Supervisory,SPACE1-1 REHEAT COIL HW BRANCH;
+Actuator,Plant Component Coil:Heating:Water,On/Off Supervisory,SPACE1-1 REHEAT COIL;
+Actuator,Demand Side Branch,On/Off Supervisory,SPACE2-1 REHEAT COIL HW BRANCH;
+Actuator,Plant Component Coil:Heating:Water,On/Off Supervisory,SPACE2-1 REHEAT COIL;
+Actuator,Demand Side Branch,On/Off Supervisory,SPACE3-1 REHEAT COIL HW BRANCH;
+Actuator,Plant Component Coil:Heating:Water,On/Off Supervisory,SPACE3-1 REHEAT COIL;
+Actuator,Demand Side Branch,On/Off Supervisory,SPACE4-1 REHEAT COIL HW BRANCH;
+Actuator,Plant Component Coil:Heating:Water,On/Off Supervisory,SPACE4-1 REHEAT COIL;
+Actuator,Demand Side Branch,On/Off Supervisory,VAV SYS 1 HEATING COIL HW BRANCH;
+Actuator,Plant Component Coil:Heating:Water,On/Off Supervisory,VAV SYS 1 HEATING COIL;
+Actuator,Demand Side Branch,On/Off Supervisory,HOT WATER LOOP HW DEMAND BYPASS BRANCH;
+Actuator,Plant Component Pipe:Adiabatic,On/Off Supervisory,HOT WATER LOOP HW DEMAND SIDE BYPASS PIPE;
+Actuator,Demand Side Branch,On/Off Supervisory,HOT WATER LOOP HW DEMAND OUTLET BRANCH;
+Actuator,Plant Component Pipe:Adiabatic,On/Off Supervisory,HOT WATER LOOP HW DEMAND OUTLET PIPE;
+Actuator,Supply Side Branch,On/Off Supervisory,HOT WATER LOOP HW SUPPLY INLET BRANCH;
+Actuator,Plant Component Pump:ConstantSpeed,On/Off Supervisory,HOT WATER LOOP HW SUPPLY PUMP;
+Actuator,Supply Side Branch,On/Off Supervisory,MAIN BOILER HW BRANCH;
+Actuator,Plant Component Boiler:HotWater,On/Off Supervisory,MAIN BOILER;
+Actuator,Supply Side Branch,On/Off Supervisory,HOT WATER LOOP HW SUPPLY BYPASS BRANCH;
+Actuator,Plant Component Pipe:Adiabatic,On/Off Supervisory,HOT WATER LOOP HW SUPPLY SIDE BYPASS PIPE;
+Actuator,Supply Side Branch,On/Off Supervisory,HOT WATER LOOP HW SUPPLY OUTLET BRANCH;
+Actuator,Plant Component Pipe:Adiabatic,On/Off Supervisory,HOT WATER LOOP HW SUPPLY OUTLET PIPE;
+Actuator,Plant Loop Overall,On/Off Supervisory,CHILLED WATER LOOP CHILLED WATER LOOP;
+Actuator,Supply Side Half Loop,On/Off Supervisory,CHILLED WATER LOOP CHILLED WATER LOOP;
+Actuator,Demand Side Half Loop,On/Off Supervisory,CHILLED WATER LOOP CHILLED WATER LOOP;
+Actuator,Demand Side Branch,On/Off Supervisory,CHILLED WATER LOOP CHW DEMAND INLET BRANCH;
+Actuator,Plant Component Pipe:Adiabatic,On/Off Supervisory,CHILLED WATER LOOP CHW DEMAND INLET PIPE;
+Actuator,Demand Side Branch,On/Off Supervisory,VAV SYS 1 COOLING COIL CHW BRANCH;
+Actuator,Plant Component Coil:Cooling:Water,On/Off Supervisory,VAV SYS 1 COOLING COIL;
+Actuator,Demand Side Branch,On/Off Supervisory,CHILLED WATER LOOP CHW DEMAND BYPASS BRANCH;
+Actuator,Plant Component Pipe:Adiabatic,On/Off Supervisory,CHILLED WATER LOOP CHW DEMAND SIDE BYPASS PIPE;
+Actuator,Demand Side Branch,On/Off Supervisory,CHILLED WATER LOOP CHW DEMAND OUTLET BRANCH;
+Actuator,Plant Component Pipe:Adiabatic,On/Off Supervisory,CHILLED WATER LOOP CHW DEMAND OUTLET PIPE;
+Actuator,Supply Side Branch,On/Off Supervisory,CHILLED WATER LOOP CHW SUPPLY INLET BRANCH;
+Actuator,Plant Component Pump:ConstantSpeed,On/Off Supervisory,CHILLED WATER LOOP CHW SUPPLY PUMP;
+Actuator,Supply Side Branch,On/Off Supervisory,MAIN CHILLER CHW BRANCH;
+Actuator,Plant Component Chiller:Electric:EIR,On/Off Supervisory,MAIN CHILLER;
+Actuator,Supply Side Branch,On/Off Supervisory,CHILLED WATER LOOP CHW SUPPLY BYPASS BRANCH;
+Actuator,Plant Component Pipe:Adiabatic,On/Off Supervisory,CHILLED WATER LOOP CHW SUPPLY SIDE BYPASS PIPE;
+Actuator,Supply Side Branch,On/Off Supervisory,CHILLED WATER LOOP CHW SUPPLY OUTLET BRANCH;
+Actuator,Plant Component Pipe:Adiabatic,On/Off Supervisory,CHILLED WATER LOOP CHW SUPPLY OUTLET PIPE;
+Actuator,Plant Loop Overall,On/Off Supervisory,CHILLED WATER LOOP CONDENSER WATER LOOP;
+Actuator,Supply Side Half Loop,On/Off Supervisory,CHILLED WATER LOOP CONDENSER WATER LOOP;
+Actuator,Demand Side Half Loop,On/Off Supervisory,CHILLED WATER LOOP CONDENSER WATER LOOP;
+Actuator,Demand Side Branch,On/Off Supervisory,CHILLED WATER LOOP CNDW DEMAND INLET BRANCH;
+Actuator,Plant Component Pipe:Adiabatic,On/Off Supervisory,CHILLED WATER LOOP CNDW DEMAND INLET PIPE;
+Actuator,Demand Side Branch,On/Off Supervisory,MAIN CHILLER CNDW BRANCH;
+Actuator,Demand Side Branch,On/Off Supervisory,CHILLED WATER LOOP CNDW DEMAND BYPASS BRANCH;
+Actuator,Plant Component Pipe:Adiabatic,On/Off Supervisory,CHILLED WATER LOOP CNDW DEMAND SIDE BYPASS PIPE;
+Actuator,Demand Side Branch,On/Off Supervisory,CHILLED WATER LOOP CNDW DEMAND OUTLET BRANCH;
+Actuator,Plant Component Pipe:Adiabatic,On/Off Supervisory,CHILLED WATER LOOP CNDW DEMAND OUTLET PIPE;
+Actuator,Supply Side Branch,On/Off Supervisory,CHILLED WATER LOOP CNDW SUPPLY INLET BRANCH;
+Actuator,Plant Component Pump:VariableSpeed,On/Off Supervisory,CHILLED WATER LOOP CNDW SUPPLY PUMP;
+Actuator,Supply Side Branch,On/Off Supervisory,MAIN TOWER CNDW BRANCH;
+Actuator,Plant Component CoolingTower:SingleSpeed,On/Off Supervisory,MAIN TOWER;
+Actuator,Supply Side Branch,On/Off Supervisory,CHILLED WATER LOOP CNDW SUPPLY BYPASS BRANCH;
+Actuator,Plant Component Pipe:Adiabatic,On/Off Supervisory,CHILLED WATER LOOP CNDW SUPPLY SIDE BYPASS PIPE;
+Actuator,Supply Side Branch,On/Off Supervisory,CHILLED WATER LOOP CNDW SUPPLY OUTLET BRANCH;
+Actuator,Plant Component Pipe:Adiabatic,On/Off Supervisory,CHILLED WATER LOOP CNDW SUPPLY OUTLET PIPE;
+Actuator,Sizing:Zone,Zone Design Heating Air Mass Flow Rate,SPACE1-1;
+Actuator,Sizing:Zone,Zone Design Cooling Air Mass Flow Rate,SPACE1-1;
+Actuator,Sizing:Zone,Zone Design Heating Load,SPACE1-1;
+Actuator,Sizing:Zone,Zone Design Cooling Load,SPACE1-1;
+Actuator,Sizing:Zone,Zone Design Heating Vol Flow,SPACE1-1;
+Actuator,Sizing:Zone,Zone Design Cooling Vol Flow,SPACE1-1;
+Actuator,Sizing:Zone,Zone Design Heating Air Mass Flow Rate,SPACE2-1;
+Actuator,Sizing:Zone,Zone Design Cooling Air Mass Flow Rate,SPACE2-1;
+Actuator,Sizing:Zone,Zone Design Heating Load,SPACE2-1;
+Actuator,Sizing:Zone,Zone Design Cooling Load,SPACE2-1;
+Actuator,Sizing:Zone,Zone Design Heating Vol Flow,SPACE2-1;
+Actuator,Sizing:Zone,Zone Design Cooling Vol Flow,SPACE2-1;
+Actuator,Sizing:Zone,Zone Design Heating Air Mass Flow Rate,SPACE3-1;
+Actuator,Sizing:Zone,Zone Design Cooling Air Mass Flow Rate,SPACE3-1;
+Actuator,Sizing:Zone,Zone Design Heating Load,SPACE3-1;
+Actuator,Sizing:Zone,Zone Design Cooling Load,SPACE3-1;
+Actuator,Sizing:Zone,Zone Design Heating Vol Flow,SPACE3-1;
+Actuator,Sizing:Zone,Zone Design Cooling Vol Flow,SPACE3-1;
+Actuator,Sizing:Zone,Zone Design Heating Air Mass Flow Rate,SPACE4-1;
+Actuator,Sizing:Zone,Zone Design Cooling Air Mass Flow Rate,SPACE4-1;
+Actuator,Sizing:Zone,Zone Design Heating Load,SPACE4-1;
+Actuator,Sizing:Zone,Zone Design Cooling Load,SPACE4-1;
+Actuator,Sizing:Zone,Zone Design Heating Vol Flow,SPACE4-1;
+Actuator,Sizing:Zone,Zone Design Cooling Vol Flow,SPACE4-1;
+Actuator,Sizing:Zone,Zone Design Heating Air Mass Flow Rate,SPACE5-1;
+Actuator,Sizing:Zone,Zone Design Cooling Air Mass Flow Rate,SPACE5-1;
+Actuator,Sizing:Zone,Zone Design Heating Load,SPACE5-1;
+Actuator,Sizing:Zone,Zone Design Cooling Load,SPACE5-1;
+Actuator,Sizing:Zone,Zone Design Heating Vol Flow,SPACE5-1;
+Actuator,Sizing:Zone,Zone Design Cooling Vol Flow,SPACE5-1;
+Actuator,Zone Temperature Control,Heating Setpoint,SPACE5-1;
+Actuator,Zone Temperature Control,Cooling Setpoint,SPACE5-1;
+Actuator,Zone Temperature Control,Heating Setpoint,SPACE1-1;
+Actuator,Zone Temperature Control,Cooling Setpoint,SPACE1-1;
+Actuator,Zone Temperature Control,Heating Setpoint,SPACE2-1;
+Actuator,Zone Temperature Control,Cooling Setpoint,SPACE2-1;
+Actuator,Zone Temperature Control,Heating Setpoint,SPACE3-1;
+Actuator,Zone Temperature Control,Cooling Setpoint,SPACE3-1;
+Actuator,Zone Temperature Control,Heating Setpoint,SPACE4-1;
+Actuator,Zone Temperature Control,Cooling Setpoint,SPACE4-1;
+**INTERNAL_VARIABLES**
+InternalVariable,Plant Design Volume Flow Rate,HOT WATER LOOP HOT WATER LOOP
+InternalVariable,Plant Design Volume Flow Rate,CHILLED WATER LOOP CHILLED WATER LOOP
+InternalVariable,Plant Design Volume Flow Rate,CHILLED WATER LOOP CONDENSER WATER LOOP
+InternalVariable,People Count Design Level,SPACE1-1 PEOPLE 1
+InternalVariable,People Count Design Level,SPACE2-1 PEOPLE 1
+InternalVariable,People Count Design Level,SPACE3-1 PEOPLE 1
+InternalVariable,People Count Design Level,SPACE4-1 PEOPLE 1
+InternalVariable,People Count Design Level,SPACE5-1 PEOPLE 1
+InternalVariable,Lighting Power Design Level,SPACE1-1 LIGHTS 1
+InternalVariable,Lighting Power Design Level,SPACE2-1 LIGHTS 1
+InternalVariable,Lighting Power Design Level,SPACE3-1 LIGHTS 1
+InternalVariable,Lighting Power Design Level,SPACE4-1 LIGHTS 1
+InternalVariable,Lighting Power Design Level,SPACE5-1 LIGHTS 1
+InternalVariable,Plug and Process Power Design Level,SPACE1-1 ELECEQ 1
+InternalVariable,Plug and Process Power Design Level,SPACE2-1 ELECEQ 1
+InternalVariable,Plug and Process Power Design Level,SPACE3-1 ELECEQ 1
+InternalVariable,Plug and Process Power Design Level,SPACE4-1 ELECEQ 1
+InternalVariable,Plug and Process Power Design Level,SPACE5-1 ELECEQ 1
+InternalVariable,Zone Floor Area,PLENUM-1
+InternalVariable,Zone Air Volume,PLENUM-1
+InternalVariable,Zone Multiplier,PLENUM-1
+InternalVariable,Zone List Multiplier,PLENUM-1
+InternalVariable,Zone Floor Area,SPACE1-1
+InternalVariable,Zone Air Volume,SPACE1-1
+InternalVariable,Zone Multiplier,SPACE1-1
+InternalVariable,Zone List Multiplier,SPACE1-1
+InternalVariable,Zone Floor Area,SPACE2-1
+InternalVariable,Zone Air Volume,SPACE2-1
+InternalVariable,Zone Multiplier,SPACE2-1
+InternalVariable,Zone List Multiplier,SPACE2-1
+InternalVariable,Zone Floor Area,SPACE3-1
+InternalVariable,Zone Air Volume,SPACE3-1
+InternalVariable,Zone Multiplier,SPACE3-1
+InternalVariable,Zone List Multiplier,SPACE3-1
+InternalVariable,Zone Floor Area,SPACE4-1
+InternalVariable,Zone Air Volume,SPACE4-1
+InternalVariable,Zone Multiplier,SPACE4-1
+InternalVariable,Zone List Multiplier,SPACE4-1
+InternalVariable,Zone Floor Area,SPACE5-1
+InternalVariable,Zone Air Volume,SPACE5-1
+InternalVariable,Zone Multiplier,SPACE5-1
+InternalVariable,Zone List Multiplier,SPACE5-1
+InternalVariable,Final Zone Design Heating Air Mass Flow Rate,SPACE1-1
+InternalVariable,Intermediate Zone Design Heating Air Mass Flow Rate,SPACE1-1
+InternalVariable,Final Zone Design Cooling Air Mass Flow Rate,SPACE1-1
+InternalVariable,Intermediate Zone Design Cooling Air Mass Flow Rate,SPACE1-1
+InternalVariable,Final Zone Design Heating Load,SPACE1-1
+InternalVariable,Intermediate Zone Design Heating Load,SPACE1-1
+InternalVariable,Final Zone Design Cooling Load,SPACE1-1
+InternalVariable,Intermediate Zone Design Cooling Load,SPACE1-1
+InternalVariable,Final Zone Design Heating Air Density,SPACE1-1
+InternalVariable,Intermediate Zone Design Heating Air Density,SPACE1-1
+InternalVariable,Final Zone Design Cooling Air Density,SPACE1-1
+InternalVariable,Intermediate Zone Design Cooling Air Density,SPACE1-1
+InternalVariable,Final Zone Design Heating Volume Flow,SPACE1-1
+InternalVariable,Intermediate Zone Design Heating Volume Flow,SPACE1-1
+InternalVariable,Final Zone Design Cooling Volume Flow,SPACE1-1
+InternalVariable,Intermediate Zone Design Cooling Volume Flow,SPACE1-1
+InternalVariable,Zone Outdoor Air Design Volume Flow Rate,SPACE1-1
+InternalVariable,Final Zone Design Heating Air Mass Flow Rate,SPACE2-1
+InternalVariable,Intermediate Zone Design Heating Air Mass Flow Rate,SPACE2-1
+InternalVariable,Final Zone Design Cooling Air Mass Flow Rate,SPACE2-1
+InternalVariable,Intermediate Zone Design Cooling Air Mass Flow Rate,SPACE2-1
+InternalVariable,Final Zone Design Heating Load,SPACE2-1
+InternalVariable,Intermediate Zone Design Heating Load,SPACE2-1
+InternalVariable,Final Zone Design Cooling Load,SPACE2-1
+InternalVariable,Intermediate Zone Design Cooling Load,SPACE2-1
+InternalVariable,Final Zone Design Heating Air Density,SPACE2-1
+InternalVariable,Intermediate Zone Design Heating Air Density,SPACE2-1
+InternalVariable,Final Zone Design Cooling Air Density,SPACE2-1
+InternalVariable,Intermediate Zone Design Cooling Air Density,SPACE2-1
+InternalVariable,Final Zone Design Heating Volume Flow,SPACE2-1
+InternalVariable,Intermediate Zone Design Heating Volume Flow,SPACE2-1
+InternalVariable,Final Zone Design Cooling Volume Flow,SPACE2-1
+InternalVariable,Intermediate Zone Design Cooling Volume Flow,SPACE2-1
+InternalVariable,Zone Outdoor Air Design Volume Flow Rate,SPACE2-1
+InternalVariable,Final Zone Design Heating Air Mass Flow Rate,SPACE3-1
+InternalVariable,Intermediate Zone Design Heating Air Mass Flow Rate,SPACE3-1
+InternalVariable,Final Zone Design Cooling Air Mass Flow Rate,SPACE3-1
+InternalVariable,Intermediate Zone Design Cooling Air Mass Flow Rate,SPACE3-1
+InternalVariable,Final Zone Design Heating Load,SPACE3-1
+InternalVariable,Intermediate Zone Design Heating Load,SPACE3-1
+InternalVariable,Final Zone Design Cooling Load,SPACE3-1
+InternalVariable,Intermediate Zone Design Cooling Load,SPACE3-1
+InternalVariable,Final Zone Design Heating Air Density,SPACE3-1
+InternalVariable,Intermediate Zone Design Heating Air Density,SPACE3-1
+InternalVariable,Final Zone Design Cooling Air Density,SPACE3-1
+InternalVariable,Intermediate Zone Design Cooling Air Density,SPACE3-1
+InternalVariable,Final Zone Design Heating Volume Flow,SPACE3-1
+InternalVariable,Intermediate Zone Design Heating Volume Flow,SPACE3-1
+InternalVariable,Final Zone Design Cooling Volume Flow,SPACE3-1
+InternalVariable,Intermediate Zone Design Cooling Volume Flow,SPACE3-1
+InternalVariable,Zone Outdoor Air Design Volume Flow Rate,SPACE3-1
+InternalVariable,Final Zone Design Heating Air Mass Flow Rate,SPACE4-1
+InternalVariable,Intermediate Zone Design Heating Air Mass Flow Rate,SPACE4-1
+InternalVariable,Final Zone Design Cooling Air Mass Flow Rate,SPACE4-1
+InternalVariable,Intermediate Zone Design Cooling Air Mass Flow Rate,SPACE4-1
+InternalVariable,Final Zone Design Heating Load,SPACE4-1
+InternalVariable,Intermediate Zone Design Heating Load,SPACE4-1
+InternalVariable,Final Zone Design Cooling Load,SPACE4-1
+InternalVariable,Intermediate Zone Design Cooling Load,SPACE4-1
+InternalVariable,Final Zone Design Heating Air Density,SPACE4-1
+InternalVariable,Intermediate Zone Design Heating Air Density,SPACE4-1
+InternalVariable,Final Zone Design Cooling Air Density,SPACE4-1
+InternalVariable,Intermediate Zone Design Cooling Air Density,SPACE4-1
+InternalVariable,Final Zone Design Heating Volume Flow,SPACE4-1
+InternalVariable,Intermediate Zone Design Heating Volume Flow,SPACE4-1
+InternalVariable,Final Zone Design Cooling Volume Flow,SPACE4-1
+InternalVariable,Intermediate Zone Design Cooling Volume Flow,SPACE4-1
+InternalVariable,Zone Outdoor Air Design Volume Flow Rate,SPACE4-1
+InternalVariable,Final Zone Design Heating Air Mass Flow Rate,SPACE5-1
+InternalVariable,Intermediate Zone Design Heating Air Mass Flow Rate,SPACE5-1
+InternalVariable,Final Zone Design Cooling Air Mass Flow Rate,SPACE5-1
+InternalVariable,Intermediate Zone Design Cooling Air Mass Flow Rate,SPACE5-1
+InternalVariable,Final Zone Design Heating Load,SPACE5-1
+InternalVariable,Intermediate Zone Design Heating Load,SPACE5-1
+InternalVariable,Final Zone Design Cooling Load,SPACE5-1
+InternalVariable,Intermediate Zone Design Cooling Load,SPACE5-1
+InternalVariable,Final Zone Design Heating Air Density,SPACE5-1
+InternalVariable,Intermediate Zone Design Heating Air Density,SPACE5-1
+InternalVariable,Final Zone Design Cooling Air Density,SPACE5-1
+InternalVariable,Intermediate Zone Design Cooling Air Density,SPACE5-1
+InternalVariable,Final Zone Design Heating Volume Flow,SPACE5-1
+InternalVariable,Intermediate Zone Design Heating Volume Flow,SPACE5-1
+InternalVariable,Final Zone Design Cooling Volume Flow,SPACE5-1
+InternalVariable,Intermediate Zone Design Cooling Volume Flow,SPACE5-1
+InternalVariable,Zone Outdoor Air Design Volume Flow Rate,SPACE5-1
+**PLUGIN_GLOBAL_VARIABLES**
+**TRENDS**
+**METERS**
+OutputMeter,Electricity:Facility
+OutputMeter,Electricity:Building
+OutputMeter,Electricity:Zone:SPACE1-1
+OutputMeter,Electricity:SpaceType:GENERAL
+OutputMeter,InteriorLights:Electricity
+OutputMeter,InteriorLights:Electricity:Zone:SPACE1-1
+OutputMeter,InteriorLights:Electricity:SpaceType:GENERAL
+OutputMeter,GeneralLights:InteriorLights:Electricity
+OutputMeter,GeneralLights:InteriorLights:Electricity:Zone:SPACE1-1
+OutputMeter,GeneralLights:InteriorLights:Electricity:SpaceType:GENERAL
+OutputMeter,Electricity:Zone:SPACE2-1
+OutputMeter,InteriorLights:Electricity:Zone:SPACE2-1
+OutputMeter,GeneralLights:InteriorLights:Electricity:Zone:SPACE2-1
+OutputMeter,Electricity:Zone:SPACE3-1
+OutputMeter,InteriorLights:Electricity:Zone:SPACE3-1
+OutputMeter,GeneralLights:InteriorLights:Electricity:Zone:SPACE3-1
+OutputMeter,Electricity:Zone:SPACE4-1
+OutputMeter,InteriorLights:Electricity:Zone:SPACE4-1
+OutputMeter,GeneralLights:InteriorLights:Electricity:Zone:SPACE4-1
+OutputMeter,Electricity:Zone:SPACE5-1
+OutputMeter,InteriorLights:Electricity:Zone:SPACE5-1
+OutputMeter,GeneralLights:InteriorLights:Electricity:Zone:SPACE5-1
+OutputMeter,InteriorEquipment:Electricity
+OutputMeter,InteriorEquipment:Electricity:Zone:SPACE1-1
+OutputMeter,InteriorEquipment:Electricity:SpaceType:GENERAL
+OutputMeter,General:InteriorEquipment:Electricity
+OutputMeter,General:InteriorEquipment:Electricity:Zone:SPACE1-1
+OutputMeter,General:InteriorEquipment:Electricity:SpaceType:GENERAL
+OutputMeter,InteriorEquipment:Electricity:Zone:SPACE2-1
+OutputMeter,General:InteriorEquipment:Electricity:Zone:SPACE2-1
+OutputMeter,InteriorEquipment:Electricity:Zone:SPACE3-1
+OutputMeter,General:InteriorEquipment:Electricity:Zone:SPACE3-1
+OutputMeter,InteriorEquipment:Electricity:Zone:SPACE4-1
+OutputMeter,General:InteriorEquipment:Electricity:Zone:SPACE4-1
+OutputMeter,InteriorEquipment:Electricity:Zone:SPACE5-1
+OutputMeter,General:InteriorEquipment:Electricity:Zone:SPACE5-1
+OutputMeter,EnergyTransfer:Facility
+OutputMeter,EnergyTransfer:Building
+OutputMeter,EnergyTransfer:Zone:PLENUM-1
+OutputMeter,Heating:EnergyTransfer
+OutputMeter,Heating:EnergyTransfer:Zone:PLENUM-1
+OutputMeter,General:Heating:EnergyTransfer
+OutputMeter,General:Heating:EnergyTransfer:Zone:PLENUM-1
+OutputMeter,Cooling:EnergyTransfer
+OutputMeter,Cooling:EnergyTransfer:Zone:PLENUM-1
+OutputMeter,General:Cooling:EnergyTransfer
+OutputMeter,General:Cooling:EnergyTransfer:Zone:PLENUM-1
+OutputMeter,EnergyTransfer:Zone:SPACE1-1
+OutputMeter,Heating:EnergyTransfer:Zone:SPACE1-1
+OutputMeter,General:Heating:EnergyTransfer:Zone:SPACE1-1
+OutputMeter,Cooling:EnergyTransfer:Zone:SPACE1-1
+OutputMeter,General:Cooling:EnergyTransfer:Zone:SPACE1-1
+OutputMeter,EnergyTransfer:Zone:SPACE2-1
+OutputMeter,Heating:EnergyTransfer:Zone:SPACE2-1
+OutputMeter,General:Heating:EnergyTransfer:Zone:SPACE2-1
+OutputMeter,Cooling:EnergyTransfer:Zone:SPACE2-1
+OutputMeter,General:Cooling:EnergyTransfer:Zone:SPACE2-1
+OutputMeter,EnergyTransfer:Zone:SPACE3-1
+OutputMeter,Heating:EnergyTransfer:Zone:SPACE3-1
+OutputMeter,General:Heating:EnergyTransfer:Zone:SPACE3-1
+OutputMeter,Cooling:EnergyTransfer:Zone:SPACE3-1
+OutputMeter,General:Cooling:EnergyTransfer:Zone:SPACE3-1
+OutputMeter,EnergyTransfer:Zone:SPACE4-1
+OutputMeter,Heating:EnergyTransfer:Zone:SPACE4-1
+OutputMeter,General:Heating:EnergyTransfer:Zone:SPACE4-1
+OutputMeter,Cooling:EnergyTransfer:Zone:SPACE4-1
+OutputMeter,General:Cooling:EnergyTransfer:Zone:SPACE4-1
+OutputMeter,EnergyTransfer:Zone:SPACE5-1
+OutputMeter,Heating:EnergyTransfer:Zone:SPACE5-1
+OutputMeter,General:Heating:EnergyTransfer:Zone:SPACE5-1
+OutputMeter,Cooling:EnergyTransfer:Zone:SPACE5-1
+OutputMeter,General:Cooling:EnergyTransfer:Zone:SPACE5-1
+OutputMeter,ElectricityPurchased:Facility
+OutputMeter,ElectricityPurchased:Plant
+OutputMeter,Cogeneration:ElectricityPurchased
+OutputMeter,General:Cogeneration:ElectricityPurchased
+OutputMeter,ElectricitySurplusSold:Facility
+OutputMeter,ElectricitySurplusSold:Plant
+OutputMeter,Cogeneration:ElectricitySurplusSold
+OutputMeter,General:Cogeneration:ElectricitySurplusSold
+OutputMeter,ElectricityNet:Facility
+OutputMeter,ElectricityNet:Plant
+OutputMeter,Cogeneration:ElectricityNet
+OutputMeter,General:Cogeneration:ElectricityNet
+**VARIABLES**
+OutputVariable,Site Outdoor Air Drybulb Temperature,ENVIRONMENT
+OutputVariable,Lights Electricity Energy,SPACE1-1 LIGHTS 1
+OutputVariable,Lights Electricity Energy,SPACE2-1 LIGHTS 1
+OutputVariable,Lights Electricity Energy,SPACE3-1 LIGHTS 1
+OutputVariable,Lights Electricity Energy,SPACE4-1 LIGHTS 1
+OutputVariable,Lights Electricity Energy,SPACE5-1 LIGHTS 1
+OutputVariable,Electric Equipment Electricity Energy,SPACE1-1 ELECEQ 1
+OutputVariable,Electric Equipment Electricity Energy,SPACE2-1 ELECEQ 1
+OutputVariable,Electric Equipment Electricity Energy,SPACE3-1 ELECEQ 1
+OutputVariable,Electric Equipment Electricity Energy,SPACE4-1 ELECEQ 1
+OutputVariable,Electric Equipment Electricity Energy,SPACE5-1 ELECEQ 1
+OutputVariable,Zone Mean Radiant Temperature,PLENUM-1
+OutputVariable,Zone Mean Radiant Temperature,SPACE1-1
+OutputVariable,Zone Mean Radiant Temperature,SPACE2-1
+OutputVariable,Zone Mean Radiant Temperature,SPACE3-1
+OutputVariable,Zone Mean Radiant Temperature,SPACE4-1
+OutputVariable,Zone Mean Radiant Temperature,SPACE5-1
+OutputVariable,Zone Mean Air Temperature,PLENUM-1
+OutputVariable,Zone Operative Temperature,PLENUM-1
+OutputVariable,Zone Mean Air Temperature,SPACE1-1
+OutputVariable,Zone Operative Temperature,SPACE1-1
+OutputVariable,Zone Mean Air Temperature,SPACE2-1
+OutputVariable,Zone Operative Temperature,SPACE2-1
+OutputVariable,Zone Mean Air Temperature,SPACE3-1
+OutputVariable,Zone Operative Temperature,SPACE3-1
+OutputVariable,Zone Mean Air Temperature,SPACE4-1
+OutputVariable,Zone Operative Temperature,SPACE4-1
+OutputVariable,Zone Mean Air Temperature,SPACE5-1
+OutputVariable,Zone Operative Temperature,SPACE5-1
+OutputVariable,Zone Air Temperature,PLENUM-1
+OutputVariable,Zone Air Humidity Ratio,PLENUM-1
+OutputVariable,Zone Air Relative Humidity,PLENUM-1
+OutputVariable,Zone Air System Sensible Heating Energy,PLENUM-1
+OutputVariable,Zone Air System Sensible Cooling Energy,PLENUM-1
+OutputVariable,Zone Air System Sensible Heating Rate,PLENUM-1
+OutputVariable,Zone Air System Sensible Cooling Rate,PLENUM-1
+OutputVariable,Zone Air Temperature,SPACE1-1
+OutputVariable,Zone Air Humidity Ratio,SPACE1-1
+OutputVariable,Zone Air Relative Humidity,SPACE1-1
+OutputVariable,Zone Air System Sensible Heating Energy,SPACE1-1
+OutputVariable,Zone Air System Sensible Cooling Energy,SPACE1-1
+OutputVariable,Zone Air System Sensible Heating Rate,SPACE1-1
+OutputVariable,Zone Air System Sensible Cooling Rate,SPACE1-1
+OutputVariable,Zone Air Temperature,SPACE2-1
+OutputVariable,Zone Air Humidity Ratio,SPACE2-1
+OutputVariable,Zone Air Relative Humidity,SPACE2-1
+OutputVariable,Zone Air System Sensible Heating Energy,SPACE2-1
+OutputVariable,Zone Air System Sensible Cooling Energy,SPACE2-1
+OutputVariable,Zone Air System Sensible Heating Rate,SPACE2-1
+OutputVariable,Zone Air System Sensible Cooling Rate,SPACE2-1
+OutputVariable,Zone Air Temperature,SPACE3-1
+OutputVariable,Zone Air Humidity Ratio,SPACE3-1
+OutputVariable,Zone Air Relative Humidity,SPACE3-1
+OutputVariable,Zone Air System Sensible Heating Energy,SPACE3-1
+OutputVariable,Zone Air System Sensible Cooling Energy,SPACE3-1
+OutputVariable,Zone Air System Sensible Heating Rate,SPACE3-1
+OutputVariable,Zone Air System Sensible Cooling Rate,SPACE3-1
+OutputVariable,Zone Air Temperature,SPACE4-1
+OutputVariable,Zone Air Humidity Ratio,SPACE4-1
+OutputVariable,Zone Air Relative Humidity,SPACE4-1
+OutputVariable,Zone Air System Sensible Heating Energy,SPACE4-1
+OutputVariable,Zone Air System Sensible Cooling Energy,SPACE4-1
+OutputVariable,Zone Air System Sensible Heating Rate,SPACE4-1
+OutputVariable,Zone Air System Sensible Cooling Rate,SPACE4-1
+OutputVariable,Zone Air Temperature,SPACE5-1
+OutputVariable,Zone Air Humidity Ratio,SPACE5-1
+OutputVariable,Zone Air Relative Humidity,SPACE5-1
+OutputVariable,Zone Air System Sensible Heating Energy,SPACE5-1
+OutputVariable,Zone Air System Sensible Cooling Energy,SPACE5-1
+OutputVariable,Zone Air System Sensible Heating Rate,SPACE5-1
+OutputVariable,Zone Air System Sensible Cooling Rate,SPACE5-1
+OutputVariable,Plant Supply Side Outlet Temperature,HOT WATER LOOP HOT WATER LOOP
+OutputVariable,Plant Supply Side Outlet Temperature,CHILLED WATER LOOP CHILLED WATER LOOP
+OutputVariable,Plant Supply Side Outlet Temperature,CHILLED WATER LOOP CONDENSER WATER LOOP
+OutputVariable,Facility Total Purchased Electricity Energy,WHOLE BUILDING
+OutputVariable,Facility Total Surplus Electricity Energy,WHOLE BUILDING
+OutputVariable,Facility Net Purchased Electricity Energy,WHOLE BUILDING
+OutputVariable,Zone Thermal Comfort ASHRAE 55 Simple Model Summer or Winter Clothes Not Comfortable Time,PLENUM-1
+OutputVariable,Zone Thermal Comfort ASHRAE 55 Simple Model Summer or Winter Clothes Not Comfortable Time,SPACE1-1
+OutputVariable,Zone Thermal Comfort ASHRAE 55 Simple Model Summer or Winter Clothes Not Comfortable Time,SPACE2-1
+OutputVariable,Zone Thermal Comfort ASHRAE 55 Simple Model Summer or Winter Clothes Not Comfortable Time,SPACE3-1
+OutputVariable,Zone Thermal Comfort ASHRAE 55 Simple Model Summer or Winter Clothes Not Comfortable Time,SPACE4-1
+OutputVariable,Zone Thermal Comfort ASHRAE 55 Simple Model Summer or Winter Clothes Not Comfortable Time,SPACE5-1
+OutputVariable,Zone Heating Setpoint Not Met While Occupied Time,PLENUM-1
+OutputVariable,Zone Cooling Setpoint Not Met While Occupied Time,PLENUM-1
+OutputVariable,Zone Heating Setpoint Not Met While Occupied Time,SPACE1-1
+OutputVariable,Zone Cooling Setpoint Not Met While Occupied Time,SPACE1-1
+OutputVariable,Zone Heating Setpoint Not Met While Occupied Time,SPACE2-1
+OutputVariable,Zone Cooling Setpoint Not Met While Occupied Time,SPACE2-1
+OutputVariable,Zone Heating Setpoint Not Met While Occupied Time,SPACE3-1
+OutputVariable,Zone Cooling Setpoint Not Met While Occupied Time,SPACE3-1
+OutputVariable,Zone Heating Setpoint Not Met While Occupied Time,SPACE4-1
+OutputVariable,Zone Cooling Setpoint Not Met While Occupied Time,SPACE4-1
+OutputVariable,Zone Heating Setpoint Not Met While Occupied Time,SPACE5-1
+OutputVariable,Zone Cooling Setpoint Not Met While Occupied Time,SPACE5-1
+""
