@@ -2147,6 +2147,10 @@
 
   Output:Variable,*,Fan Electricity Rate,hourly;
 
+!  Output:Variable,*,Cooling Coil Electricity Energy,timestep;
+
+!  Output:Variable,*,Fan Electricity Energy,timestep;
+
   Output:Variable,*,Heating Coil Heating Rate,hourly;
 
   Output:Variable,*,Cooling Coil Total Cooling Rate,hourly;
@@ -2184,6 +2188,8 @@
   Output:Meter:MeterFileOnly,InteriorLights:Electricity,monthly;
 
   Output:Meter:MeterFileOnly,Electricity:HVAC,timestep;
+
+  Output:Meter:MeterFileOnly,Heating:NaturalGas,timestep;
 
   Output:Meter:MeterFileOnly,Cooling:Electricity,timestep;
   

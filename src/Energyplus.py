@@ -66,6 +66,8 @@ class EnergyPlus:
             'outdoor_air_drybulb_temperature': ('Site Outdoor Air Drybulb Temperature', 'Environment'),
             "damper_pos": ("Zone Air Terminal VAV Damper Position","SPACE5-1 VAV REHEAT")
         }
+        # Heating Coil NaturalGas Energy
+        # Cooling Coil Electricity Energy
         self.var_handles: Dict[str, int] = {}
 
         # meters
@@ -81,9 +83,11 @@ class EnergyPlus:
             "transfer_cool_5" : "Cooling:EnergyTransfer:Zone:SPACE5-1",
             "transfer_heat_5" : "Heating:EnergyTransfer:Zone:SPACE5-1",
 
+            # https://unmethours.com/question/55005/hvac-energy-consumption/
             "elec_hvac": "Electricity:HVAC",
-            "elec_heating" : "Heating:Electricity",
-            "elec_cooling" : "Cooling:Electricity"
+            # "elec_heating" : "Heating:Electricity",
+            "elec_cooling" : "Cooling:Electricity",
+            "gas_heating" : "Heating:NaturalGas"
         }
         self.meter_handles: Dict[str, int] = {}
 
@@ -263,7 +267,6 @@ class EnergyPlus:
         # add the meters such as electricity
         for key, handle in self.meter_handles.items():
             self.next_obs[key] = self.dx.get_meter_value(state_argument,handle)
-        
         # if full, it will block the entire simulation
         self.obs_queue.put(self.next_obs) 
         # print(f"obs: {self.next_obs}")
@@ -272,8 +275,7 @@ class EnergyPlus:
     def _send_actions(self, state_argument):
         if self.simulation_complete or not self._init_callback(state_argument):
             return 
-        # if self.act_queue.empty():
-        #     return
+
         actions = self.act_queue.get()
         for i in len(self.actuator_handles):
             self.dx.set_actuator_value(

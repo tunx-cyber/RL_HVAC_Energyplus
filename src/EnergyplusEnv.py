@@ -96,7 +96,9 @@ class EnergyPlusEnvironment:
         
         # electricity reward
         elec_reward = 0
-        
+        elec = obs["elec_cooling"] + obs["gas_heating"]
+        elec_reward = - elec
+
 
     def sample(self):
         # random sample
