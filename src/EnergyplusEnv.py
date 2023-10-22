@@ -1,30 +1,30 @@
 import Energyplus
 from queue import Queue, Full, Empty
 import numpy as np
-'''
-Variable air volume (VAV) is a type of heating, ventilating, and/or air-conditioning (HVAC) system. 
-Unlike constant air volume (CAV) systems, which supply a constant airflow at a variable temperature, 
-VAV systems vary the airflow at a constant or varying temperature.[1][2] 
-The advantages of VAV systems over constant-volume systems include more precise temperature control, 
-reduced compressor wear, lower energy consumption by system fans, less fan noise, 
-and additional passive dehumidification.[3]
-'''
+import Config
 
-class EnergyPlusEnvironment():
-    def __init__(self, cfg) -> None:
+class EnergyPlusEnvironment:
+    def __init__(self, cfg: Config.config) -> None:
         self.cfg = cfg
         self.episode = -1
         self.timestep = 0
 
         self.last_obs = {}
-        self.obs_queue = None
-        self.act_queue = None
-        self.energyplus: Energyplus.EnergyPlus= None
-        self.obs_space = []
+        self.obs_queue = None # this queue and the energyplus's queue is the same obj
+        self.act_queue = None # this queue and the energyplus's queue is the same obj
+        self.energyplus: Energyplus.EnergyPlus= Energyplus.EnergyPlus()
 
+        # observation space is a two dimentional array
+        # the firt is the action variable
+        # the second is the action avaliable values
+        self.observation_space_size = len(self.energyplus.variables)
+        # choose one value from every variable
+        self.action_space = len(self.energyplus.actuators)
+
+    # return a first observation
     def reset(self):
         self.episode += 1
-        self.last_obs = self.sample()
+        # self.last_obs = self.sample()
 
         if self.energyplus is not None:
             self.energyplus.stop()
@@ -41,8 +41,9 @@ class EnergyPlusEnvironment():
 
         obs = self.obs_queue.get()
         self.last_obs = obs
-        return np.array(list(obs.values())), {}
-        
+        return np.array(list(obs.values()))
+    
+    # predict next observation
     def step(self, action):
         self.timestep += 1
         done = False
@@ -56,7 +57,6 @@ class EnergyPlusEnvironment():
         else:
             timeout = 2
             try:
-                # TODO: use network to choose action
                 action = None
                 self.act_queue.put(action,timeout=timeout)
                 self.last_obs = obs = self.obs_queue.get(timeout=timeout)
@@ -69,11 +69,39 @@ class EnergyPlusEnvironment():
         return obs_vec, reward, done, False, {}
 
     def get_reward(self):
-        pass
+        # TODO
+        # according to the meters and variables to compute
+        obs = self.last_obs
+        
+        # compute the temperature reward
+        temp_reward = 0
+        temps = ["zone_air_temp_"+str(i+1) for i in range(5)]
+        occups = ["people_"+str(i+1) for i in range(5)]
+        temps_vals = []
+        occups_vals = []
+        for temp in temps:
+            temps_vals.append(obs[temp])
+        for occup in occups:
+            occups_vals.append(obs[occup])
+        
+        for i in range(len(temps_vals)):
+            if occups_vals[i] <= 0.001:
+                temp_reward += 0
+            elif self.cfg.T_MIN <= temp_reward[i] <= self.cfg.T_MAX:
+                temp_reward += 0
+            elif temp_reward[i] < self.cfg.T_MIN :
+                temp_reward += self.cfg.T_MIN - temps_vals[i]
+            else:
+                temp_reward += temps_vals[i] - self.cfg.T_MAX
+        
+        # electricity reward
+        elec_reward = 0
+        
 
     def sample(self):
         # random sample
-        pass
+        np.random.randint(0, len(self.action_space))
+        
 
     def close(self):
         if self.energyplus is not None:

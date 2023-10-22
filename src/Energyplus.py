@@ -16,8 +16,10 @@ idf_file = "./resource/HVACTemplate-5ZoneVAVFanPowered.idf"
 epw_file = "./resource/USA_CO_Golden-NREL.724666_TMY3.epw"
 idd_file = r"C:\EnergyPlusV23-1-0\Energy+.idd"
 
+# data = []
+
 class EnergyPlus:
-    def __init__(self,obs_queue: Queue = Queue(), act_queue: Queue = Queue()) -> None:
+    def __init__(self,obs_queue: Queue = Queue(1), act_queue: Queue = Queue(1)) -> None:
 
         # for RL
         self.obs_queue = obs_queue
@@ -45,16 +47,43 @@ class EnergyPlus:
         
         # variables, meters, actuators
         # look up in the csv file that get_available_data_csv() generate
-
+        # or look up the html file
+        '''
+        space1-1 都是idf文件里面自定义的名字
+        '''
         # variables
         self.variables = {
-            "zone_air_temp_1" : ("Zone Air Temperature","PLENUM-1")
+            "zone_air_temp_1" : ("Zone Air Temperature","SPACE1-1"),
+            "zone_air_temp_2" : ("Zone Air Temperature","SPACE2-1"),
+            "zone_air_temp_3" : ("Zone Air Temperature","SPACE3-1"),
+            "zone_air_temp_4" : ("Zone Air Temperature","SPACE4-1"),
+            "zone_air_temp_5" : ("Zone Air Temperature","SPACE5-1"),
+            "people_1" : ("Zone People Occupant Count", "SPACE1-1"),
+            "people_2" : ("Zone People Occupant Count", "SPACE2-1"),
+            "people_3" : ("Zone People Occupant Count", "SPACE3-1"),
+            "people_4" : ("Zone People Occupant Count", "SPACE4-1"),
+            "people_5" : ("Zone People Occupant Count", "SPACE5-1"),
+            'outdoor_air_drybulb_temperature': ('Site Outdoor Air Drybulb Temperature', 'Environment'),
+            "damper_pos": ("Zone Air Terminal VAV Damper Position","SPACE5-1 VAV REHEAT")
         }
         self.var_handles: Dict[str, int] = {}
 
         # meters
         self.meters = {
-            "p_1" : "Cooling:EnergyTransfer:Zone:PLENUM-1"
+            "transfer_cool_1" : "Cooling:EnergyTransfer:Zone:SPACE1-1",
+            "transfer_heat_1" : "Heating:EnergyTransfer:Zone:SPACE1-1",
+            "transfer_cool_2" : "Cooling:EnergyTransfer:Zone:SPACE2-1",
+            "transfer_heat_2" : "Heating:EnergyTransfer:Zone:SPACE2-1",
+            "transfer_cool_3" : "Cooling:EnergyTransfer:Zone:SPACE3-1",
+            "transfer_heat_3" : "Heating:EnergyTransfer:Zone:SPACE3-1",
+            "transfer_cool_4" : "Cooling:EnergyTransfer:Zone:SPACE4-1",
+            "transfer_heat_4" : "Heating:EnergyTransfer:Zone:SPACE4-1",
+            "transfer_cool_5" : "Cooling:EnergyTransfer:Zone:SPACE5-1",
+            "transfer_heat_5" : "Heating:EnergyTransfer:Zone:SPACE5-1",
+
+            "elec_hvac": "Electricity:HVAC",
+            "elec_heating" : "Heating:Electricity",
+            "elec_cooling" : "Cooling:Electricity"
         }
         self.meter_handles: Dict[str, int] = {}
 
@@ -69,7 +98,98 @@ class EnergyPlus:
                 "Zone Temperature Control",
                 "Heating Setpoint",
                 "SPACE1-1"
-            )
+            ),
+            "cooling_2" :(
+                "Zone Temperature Control",
+                "Cooling Setpoint",
+                "SPACE2-1"
+            ),
+            "heating_2" :(
+                "Zone Temperature Control",
+                "Heating Setpoint",
+                "SPACE2-1"
+            ),
+            "cooling_3" :(
+                "Zone Temperature Control",
+                "Cooling Setpoint",
+                "SPACE3-1"
+            ),
+            "heating_3" :(
+                "Zone Temperature Control",
+                "Heating Setpoint",
+                "SPACE3-1"
+            ),
+            "cooling_4" :(
+                "Zone Temperature Control",
+                "Cooling Setpoint",
+                "SPACE4-1"
+            ),
+            "heating_4" :(
+                "Zone Temperature Control",
+                "Heating Setpoint",
+                "SPACE4-1"
+            ),
+            "cooling_5" :(
+                "Zone Temperature Control",
+                "Cooling Setpoint",
+                "SPACE5-1"
+            ),
+            "heating_5" :(
+                "Zone Temperature Control",
+                "Heating Setpoint",
+                "SPACE5-1"
+            ),
+            "vol_heat_rate_1":(
+                "Sizing:Zone",
+                "Zone Design Heating Vol Flow",
+                "SPACE1-1"
+            ),
+            "vol_cool_rate_1":(
+                "Sizing:Zone",
+                "Zone Design Cooling Vol Flow",
+                "SPACE1-1"
+            ),
+            "vol_heat_rate_2":(
+                "Sizing:Zone",
+                "Zone Design Heating Vol Flow",
+                "SPACE2-1"
+            ),
+            "vol_cool_rate_2":(
+                "Sizing:Zone",
+                "Zone Design Cooling Vol Flow",
+                "SPACE2-1"
+            ),
+            "vol_heat_rate_3":(
+                "Sizing:Zone",
+                "Zone Design Heating Vol Flow",
+                "SPACE3-1"
+            ),
+            "vol_cool_rate_3":(
+                "Sizing:Zone",
+                "Zone Design Cooling Vol Flow",
+                "SPACE3-1"
+            ),
+            "vol_heat_rate_4":(
+                "Sizing:Zone",
+                "Zone Design Heating Vol Flow",
+                "SPACE4-1"
+            ),
+            "vol_cool_rate_4":(
+                "Sizing:Zone",
+                "Zone Design Cooling Vol Flow",
+                "SPACE4-1"
+            ),
+            "vol_heat_rate_5":(
+                "Sizing:Zone",
+                "Zone Design Heating Vol Flow",
+                "SPACE5-1"
+            ),
+            "vol_cool_rate_5":(
+                "Sizing:Zone",
+                "Zone Design Cooling Vol Flow",
+                "SPACE5-1"
+            ),           
+
         }
         self.actuator_handles: Dict[str, int] = {}
 
@@ -97,10 +217,8 @@ class EnergyPlus:
 
         runtime.callback_after_new_environment_warmup_complete(self.energyplus_state, _warmup_complete)
 
-
         # register callback used to collect observations and send actions
         runtime.callback_end_zone_timestep_after_zone_reporting(self.energyplus_state, self._collect_obs)
-        runtime.callback_end_zone_timestep_after_zone_reporting(self.energyplus_state, self._collect_meter)
 
         # register callback used to send actions
         runtime.callback_after_predictor_after_hvac_managers(self.energyplus_state, self._send_actions)
@@ -111,7 +229,7 @@ class EnergyPlus:
 
             # start simulation
             results["exit_code"] = runtime.run_energyplus(state, cmd_args)
-
+            
         self.energyplus_exec_thread = threading.Thread(
             target=_run_energyplus,
             args=(
@@ -142,32 +260,27 @@ class EnergyPlus:
                 for key, handle in self.var_handles.items()
             }
         }
-        print(f"obs: {self.next_obs}")
-        self.obs_queue.put(self.next_obs)
+        # add the meters such as electricity
+        for key, handle in self.meter_handles.items():
+            self.next_obs[key] = self.dx.get_meter_value(state_argument,handle)
+        
+        # if full, it will block the entire simulation
+        self.obs_queue.put(self.next_obs) 
+        # print(f"obs: {self.next_obs}")
 
-
-    def _collect_meter(self, state_argument):
-        pass
-
+    # TODO: pass the actions i.e. actuator_values
     def _send_actions(self, state_argument):
         if self.simulation_complete or not self._init_callback(state_argument):
             return 
-        if self.act_queue.empty():
-            return
-        
-        next_action = self.act_queue.get()
-        assert isinstance(next_action, float)
-
-        self.dx.set_actuator_value(
-            state=state_argument,
-            actuator_handle=self.actuator_handles["cooling_1"],
-            actuator_value=next_action
-        )
-        self.dx.set_actuator_value(
-            state=state_argument,
-            actuator_handle=self.actuator_handles["heating_1"],
-            actuator_value=0
-        )
+        # if self.act_queue.empty():
+        #     return
+        actions = self.act_queue.get()
+        for i in len(self.actuator_handles):
+            self.dx.set_actuator_value(
+                state=state_argument,
+                actuator_handle=list(self.actuator_handles.values())[i],
+                actuator_value=actions[i]
+            )
 
     def _flush_queues(self):
         for q in [self.obs_queue, self.act_queue]:
@@ -184,6 +297,7 @@ class EnergyPlus:
             "-d",
             "res",
             "-x",
+            "-r",
             idf_file,
         ]
         return args
@@ -199,7 +313,7 @@ class EnergyPlus:
         if not self.initialized:
             if not self.dx.api_data_fully_ready(state_argument):
                 return False
-            
+        
             # store the handles so that we do not need get the hand every callback
             self.var_handles = {
                 key: self.dx.get_variable_handle(state_argument, *var)
@@ -223,6 +337,19 @@ class EnergyPlus:
             ]:
                 if any([v == -1 for v in handles.values()]):
                     print("Error! there is -1 in handle! check the variable names in the var.csv")
+
+                    print("variables:")
+                    for k in self.var_handles :
+                        print(self.var_handles[k])
+
+                    print("meters:")
+                    for k in self.meter_handles :
+                        print(self.meter_handles[k])
+
+                    print("actuators")
+                    for k in self.actuator_handles:
+                        print(k)
+                    
                     self.get_available_data_csv(state_argument)
                     exit(1)
 
@@ -240,10 +367,13 @@ class EnergyPlus:
             with open("var.csv", 'w', newline='') as csvfile:
                 writer = csv.writer(csvfile)
                 for line in lines:
-                    fields = line.split(',')  # 根据实际的分隔符进行拆分
+                    fields = line.split(',')
                     writer.writerow(fields)
 
             self.has_csv = True
     
     def failed(self) -> bool:
         return self.sim_results.get("exit_code", -1) > 0
+
+test = EnergyPlus()
+test.start()

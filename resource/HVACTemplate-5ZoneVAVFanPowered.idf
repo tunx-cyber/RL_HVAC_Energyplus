@@ -2141,7 +2141,9 @@
 
   Output:Variable,*,Zone Cooling Setpoint Not Met While Occupied Time,hourly;
 
-  Output:Variable,*,Zone Air Terminal VAV Damper Position,hourly;
+  Output:Variable,*,Zone Air Terminal VAV Damper Position,timestep;
+
+  Output:Variable,*,Zone People Occupant Count,timestep;
 
   Output:Variable,*,Fan Electricity Rate,hourly;
 
@@ -2181,8 +2183,10 @@
 
   Output:Meter:MeterFileOnly,InteriorLights:Electricity,monthly;
 
-  Output:Meter:MeterFileOnly,Electricity:HVAC,monthly;
+  Output:Meter:MeterFileOnly,Electricity:HVAC,timestep;
 
+  Output:Meter:MeterFileOnly,Cooling:Electricity,timestep;
+  
   Output:Meter:MeterFileOnly,Electricity:Plant,monthly;
 
   Output:Meter:MeterFileOnly,NaturalGas:Plant,monthly;

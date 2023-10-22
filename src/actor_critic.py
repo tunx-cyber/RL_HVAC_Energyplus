@@ -1,58 +1,125 @@
-import Config
-import actor
-import critic
+import gym
 import torch
-import numpy as np
-from torch.nn import functional as F
-class actor_critic:
-    def __init__(self, n_states, n_actions, cfg:Config.config):
-        self.actor = actor.actor(n_states,n_actions)
-        self.critic = critic.critic(n_states)
-       # 策略网络的优化器
-        self.actor_optimizer = torch.optim.Adam(self.actor.parameters(), lr=self.actor.lr)
-        # 价值网络的优化器
-        self.critic_optimizer = torch.optim.Adam(self.critic.parameters(), lr=self.critic.lr)
-        self.gamma = cfg.gamma
+import torch.nn as nn
+import torch.optim as optim
+import torch.nn.functional as F
+from torch.distributions import Categorical
 
-    def take_action(self, state):
-        state = torch.tensor(state[np.newaxism :])
-        probs = self.actor(state)
-        action_dist = torch.distributions.Categorical(probs=probs)
-        action = action_dist.sample().item()
-        return action
-    
-    # 模型更新
-    def update(self, transition_dict):
-        # 训练集
-        state = torch.tensor(transition_dict['state'], dtype=torch.float)
-        action = torch.tensor(transition_dict['action'])
-        reward = torch.tensor(transition_dict['reward'], dtype=torch.float)
-        next_state = torch.tensor(transition_dict['next_state'], dtype=torch.float)
-        done = torch.tensor(transition_dict['done'], dtype=torch.float)
+# 定义Actor网络
+class Actor(nn.Module):
+    def __init__(self, input_dim, output_dim):
+        super(Actor, self).__init__()
+        self.fc1 = nn.Linear(input_dim, 64)
+        self.fc2 = nn.Linear(64, 64)
+        self.fc3 = nn.Linear(64, output_dim)
 
-        # 预测的当前时刻的state_value
-        td_value = self.critic(state)
-        # 目标的当前时刻的state_value
-        td_target = reward + self.gamma * self.critic(next_state) * (1-int(done))
-        # 时序差分的误差计算，目标的state_value与预测的state_value之差
-        td_error = td_target - td_value
-        
-        # 对每个状态对应的动作价值用log函数
-        # log_probs = torch.log(self.actor(state).gather(1, action))
+    def forward(self, x):
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        logits = self.fc3(x)
+        return logits
 
-        # 优化器梯度清0
-        self.actor_optimizer.zero_grad()  # 策略梯度网络的优化器
-        self.critic_optimizer.zero_grad()  # 价值网络的优化器
+# 定义Critic网络
+class Critic(nn.Module):
+    def __init__(self, input_dim):
+        super(Critic, self).__init__()
+        self.fc1 = nn.Linear(input_dim, 64)
+        self.fc2 = nn.Linear(64, 64)
+        self.fc3 = nn.Linear(64, 1)
 
-        # 策略梯度损失
-        actor_loss = -torch.log(self.actor(state)) * td_error.detach()
-        # 值函数损失，预测值和目标值之间
-        critic_loss =  td_error.pow(2)
+    def forward(self, x):
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        value = self.fc3(x)
+        return value
 
-        # 反向传播
-        actor_loss.backward()
+# 定义A2C算法
+class A2C:
+    def __init__(self, env : gym.Env):
+        self.env = env
+
+        self.state_dim = env.observation_space.shape[0]
+        # self.state_dim = env.observation_space_size
+        self.action_dim = env.action_space.n
+
+        self.actor = Actor(self.state_dim, self.action_dim)
+        self.critic = Critic(self.state_dim)
+        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=0.001)
+        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=0.001)
+
+    def select_action(self, state):
+        state = torch.from_numpy(state).float().unsqueeze(0)
+        logits = self.actor(state)
+        probs = F.softmax(logits, dim=1)
+        m = Categorical(probs)
+        action = m.sample()
+        return action.item()
+
+    def update(self, states, actions, rewards, next_states, dones):
+        states = torch.FloatTensor(states)
+        actions = torch.LongTensor(actions)
+        rewards = torch.FloatTensor(rewards)
+        next_states = torch.FloatTensor(next_states)
+        dones = torch.FloatTensor(dones)
+
+        # 计算TD误差
+        values = self.critic(states).squeeze()
+        next_values = self.critic(next_states).squeeze()
+        td_targets = rewards + 0.99 * next_values * (1 - dones)
+        td_errors = td_targets - values
+
+        # 更新Critic网络参数
+        critic_loss = td_errors.pow(2).mean()
+        self.critic_optimizer.zero_grad()
         critic_loss.backward()
-        # 参数更新
-        self.actor_optimizer.step()
         self.critic_optimizer.step()
-    
+
+        # 更新Actor网络参数
+        logits = self.actor(states)
+        probs = F.softmax(logits, dim=1)
+        m = Categorical(probs)
+        log_probs = m.log_prob(actions)
+        actor_loss = -(log_probs * td_errors.detach()).mean()
+        self.actor_optimizer.zero_grad()
+        actor_loss.backward()
+        self.actor_optimizer.step()
+
+    def train(self, num_episodes):
+        x = []
+        y = []
+        for episode in range(num_episodes):
+            # first observation
+            state = self.env.reset()
+            done = False
+            episode_reward = 0
+
+            states, actions, rewards, next_states, dones = [], [], [], [], []
+
+            while not done:
+                action = self.select_action(state)
+                next_state, reward, done, _ = self.env.step(action)
+
+                states.append(state)
+                actions.append(action)
+                rewards.append(reward)
+                next_states.append(next_state)
+                dones.append(done)
+
+                state = next_state
+                episode_reward += reward
+
+            self.update(states, actions, rewards, next_states, dones)
+            x.append(episode)
+            y.append(episode_reward)
+            print(f"Episode {episode + 1}, Reward: {episode_reward}")
+        return x,y
+
+# 创建OpenAI Gym环境
+env = gym.make('CartPole-v1')
+
+# 创建A2C实例并训练
+agent = A2C(env)
+x,y = agent.train(num_episodes=100)
+import matplotlib.pyplot as plt
+plt.plot(x,y,color = 'r')
+plt.show()
