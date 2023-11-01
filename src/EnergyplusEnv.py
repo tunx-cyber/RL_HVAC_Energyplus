@@ -12,14 +12,14 @@ class EnergyPlusEnvironment:
         self.last_obs = {}
         self.obs_queue = None # this queue and the energyplus's queue is the same obj
         self.act_queue = None # this queue and the energyplus's queue is the same obj
-        self.energyplus: Energyplus.EnergyPlus= Energyplus.EnergyPlus()
+        self.energyplus: Energyplus.EnergyPlus= Energyplus.EnergyPlus(None,None)
 
         # observation space is a two dimentional array
         # the firt is the action variable
         # the second is the action avaliable values
-        self.observation_space_size = len(self.energyplus.variables)
+        self.observation_space_size = len(self.energyplus.variables) + len(self.energyplus.meters)
         # choose one value from every variable
-        self.action_space = len(self.energyplus.actuators)
+        self.action_space_size = self.energyplus.action_space_size
 
     # return a first observation
     def reset(self):
@@ -57,7 +57,6 @@ class EnergyPlusEnvironment:
         else:
             timeout = 2
             try:
-                action = None
                 self.act_queue.put(action,timeout=timeout)
                 self.last_obs = obs = self.obs_queue.get(timeout=timeout)
             except(Full, Empty):
@@ -66,7 +65,7 @@ class EnergyPlusEnvironment:
         
         reward = self.get_reward()
         obs_vec = np.array(list(obs.values()))
-        return obs_vec, reward, done, False, {}
+        return obs_vec, reward, done
 
     def get_reward(self):
         # TODO
@@ -87,18 +86,20 @@ class EnergyPlusEnvironment:
         for i in range(len(temps_vals)):
             if occups_vals[i] <= 0.001:
                 temp_reward += 0
-            elif self.cfg.T_MIN <= temp_reward[i] <= self.cfg.T_MAX:
+            elif self.cfg.T_MIN <= temps_vals[i] <= self.cfg.T_MAX:
                 temp_reward += 0
-            elif temp_reward[i] < self.cfg.T_MIN :
-                temp_reward += self.cfg.T_MIN - temps_vals[i]
+            elif temps_vals[i] < self.cfg.T_MIN :
+                temp_reward += temps_vals[i] - self.cfg.T_MIN
             else:
-                temp_reward += temps_vals[i] - self.cfg.T_MAX
+                temp_reward += self.cfg.T_MAX - temps_vals[i]
         
         # electricity reward
         elec_reward = 0
         elec = obs["elec_cooling"] + obs["gas_heating"]
-        elec_reward = - elec
+        elec_reward = - elec/1000
 
+        return temp_reward*1000 + elec_reward
+    
 
     def sample(self):
         # random sample

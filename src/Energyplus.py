@@ -6,9 +6,9 @@ from pyenergyplus.datatransfer import DataExchange
 
 import numpy as np
 import csv
-
+from functools import lru_cache
 import threading
-
+import itertools
 from queue import Queue, Empty, Full
 from typing import Dict, Any, Tuple, Optional, List
 
@@ -17,7 +17,6 @@ epw_file = "./resource/USA_CO_Golden-NREL.724666_TMY3.epw"
 idd_file = r"C:\EnergyPlusV23-1-0\Energy+.idd"
 
 # data = []
-
 class EnergyPlus:
     def __init__(self,obs_queue: Queue = Queue(1), act_queue: Queue = Queue(1)) -> None:
 
@@ -143,61 +142,69 @@ class EnergyPlus:
                 "Heating Setpoint",
                 "SPACE5-1"
             ),
-            "vol_heat_rate_1":(
-                "Sizing:Zone",
-                "Zone Design Heating Vol Flow",
-                "SPACE1-1"
-            ),
-            "vol_cool_rate_1":(
-                "Sizing:Zone",
-                "Zone Design Cooling Vol Flow",
-                "SPACE1-1"
-            ),
-            "vol_heat_rate_2":(
-                "Sizing:Zone",
-                "Zone Design Heating Vol Flow",
-                "SPACE2-1"
-            ),
-            "vol_cool_rate_2":(
-                "Sizing:Zone",
-                "Zone Design Cooling Vol Flow",
-                "SPACE2-1"
-            ),
-            "vol_heat_rate_3":(
-                "Sizing:Zone",
-                "Zone Design Heating Vol Flow",
-                "SPACE3-1"
-            ),
-            "vol_cool_rate_3":(
-                "Sizing:Zone",
-                "Zone Design Cooling Vol Flow",
-                "SPACE3-1"
-            ),
-            "vol_heat_rate_4":(
-                "Sizing:Zone",
-                "Zone Design Heating Vol Flow",
-                "SPACE4-1"
-            ),
-            "vol_cool_rate_4":(
-                "Sizing:Zone",
-                "Zone Design Cooling Vol Flow",
-                "SPACE4-1"
-            ),
-            "vol_heat_rate_5":(
-                "Sizing:Zone",
-                "Zone Design Heating Vol Flow",
-                "SPACE5-1"
-            ),
-            "vol_cool_rate_5":(
-                "Sizing:Zone",
-                "Zone Design Cooling Vol Flow",
-                "SPACE5-1"
-            ),           
+            # "vol_heat_rate_1":(
+            #     "Sizing:Zone",
+            #     "Zone Design Heating Vol Flow",
+            #     "SPACE1-1"
+            # ),
+            # "vol_cool_rate_1":(
+            #     "Sizing:Zone",
+            #     "Zone Design Cooling Vol Flow",
+            #     "SPACE1-1"
+            # ),
+            # "vol_heat_rate_2":(
+            #     "Sizing:Zone",
+            #     "Zone Design Heating Vol Flow",
+            #     "SPACE2-1"
+            # ),
+            # "vol_cool_rate_2":(
+            #     "Sizing:Zone",
+            #     "Zone Design Cooling Vol Flow",
+            #     "SPACE2-1"
+            # ),
+            # "vol_heat_rate_3":(
+            #     "Sizing:Zone",
+            #     "Zone Design Heating Vol Flow",
+            #     "SPACE3-1"
+            # ),
+            # "vol_cool_rate_3":(
+            #     "Sizing:Zone",
+            #     "Zone Design Cooling Vol Flow",
+            #     "SPACE3-1"
+            # ),
+            # "vol_heat_rate_4":(
+            #     "Sizing:Zone",
+            #     "Zone Design Heating Vol Flow",
+            #     "SPACE4-1"
+            # ),
+            # "vol_cool_rate_4":(
+            #     "Sizing:Zone",
+            #     "Zone Design Cooling Vol Flow",
+            #     "SPACE4-1"
+            # ),
+            # "vol_heat_rate_5":(
+            #     "Sizing:Zone",
+            #     "Zone Design Heating Vol Flow",
+            #     "SPACE5-1"
+            # ),
+            # "vol_cool_rate_5":(
+            #     "Sizing:Zone",
+            #     "Zone Design Cooling Vol Flow",
+            #     "SPACE5-1"
+            # ),           
 
         }
         self.actuator_handles: Dict[str, int] = {}
 
+        self.actions = self.get_valid_action_space()
+        self.action_space_size = len(self.actions)
 
+    @lru_cache(1)
+    def get_valid_action_space(self):
+        action_size = len(self.actuators)//2
+        a = np.linspace(19,25,7)
+        return list(itertools.product(a, repeat=action_size))
+    
     def start(self):
         self.energyplus_state = self.energyplus_api.state_manager.new_state()
         runtime = self.energyplus_api.runtime
@@ -258,6 +265,7 @@ class EnergyPlus:
     def _collect_obs(self, state_argument):
         if self.simulation_complete or not self._init_callback(state_argument):
             return
+
         self.next_obs = {
             **{
                 key: self.dx.get_variable_value(state_argument, handle)
@@ -268,22 +276,40 @@ class EnergyPlus:
         for key, handle in self.meter_handles.items():
             self.next_obs[key] = self.dx.get_meter_value(state_argument,handle)
         # if full, it will block the entire simulation
-        self.obs_queue.put(self.next_obs) 
         # print(f"obs: {self.next_obs}")
-
-    # TODO: pass the actions i.e. actuator_values
+        self.obs_queue.put(self.next_obs) 
+        
+    # TODO: 不能直接set数值，因为值可能太离谱了，ep会出错，还有就是也不方便训练
+    # 应该规定一个执行空间
     def _send_actions(self, state_argument):
         if self.simulation_complete or not self._init_callback(state_argument):
             return 
+        if self.act_queue.empty():
+            return
+        action_idx = self.act_queue.get()
+        actions = self.transform_action(action_idx)
+        n = len(actions)
+        heat = []
+        for i in range(n):
+            heat.append(actions[i]-1)
+        real_act = []
+        for i in range(len(actions)):
+            real_act.append(actions[i])
+            real_act.append(heat[i])
 
-        actions = self.act_queue.get()
-        for i in len(self.actuator_handles):
+        actions = real_act
+        for i in range(len(self.actuator_handles)):
+            # Effective heating set-point higher than effective cooling set-point err
             self.dx.set_actuator_value(
                 state=state_argument,
                 actuator_handle=list(self.actuator_handles.values())[i],
                 actuator_value=actions[i]
             )
+            
 
+    def transform_action(self,action):
+        return list(self.actions[action])
+        
     def _flush_queues(self):
         for q in [self.obs_queue, self.act_queue]:
             while not q.empty():
@@ -377,5 +403,5 @@ class EnergyPlus:
     def failed(self) -> bool:
         return self.sim_results.get("exit_code", -1) > 0
 
-test = EnergyPlus()
-test.start()
+# test = EnergyPlus()
+# test.start()

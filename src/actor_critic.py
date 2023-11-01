@@ -1,125 +1,125 @@
-import gym
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import numpy as np
+from Config import config
+from EnergyplusEnv import EnergyPlusEnvironment
 import torch.nn.functional as F
 from torch.distributions import Categorical
 
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 # 定义Actor网络
 class Actor(nn.Module):
-    def __init__(self, input_dim, output_dim):
+    def __init__(self, state_dim, action_dim):
         super(Actor, self).__init__()
-        self.fc1 = nn.Linear(input_dim, 64)
-        self.fc2 = nn.Linear(64, 64)
-        self.fc3 = nn.Linear(64, output_dim)
-
+        self.fc1 = nn.Linear(state_dim, 64)
+        self.fc2 = nn.Linear(64, action_dim)
+        
     def forward(self, x):
         x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        logits = self.fc3(x)
-        return logits
+        x = F.softmax(self.fc2(x), dim=-1)
+        return x
 
 # 定义Critic网络
 class Critic(nn.Module):
-    def __init__(self, input_dim):
+    def __init__(self, state_dim):
         super(Critic, self).__init__()
-        self.fc1 = nn.Linear(input_dim, 64)
-        self.fc2 = nn.Linear(64, 64)
-        self.fc3 = nn.Linear(64, 1)
-
+        self.fc1 = nn.Linear(state_dim, 64)
+        self.fc2 = nn.Linear(64, 1)
+        
     def forward(self, x):
         x = F.relu(self.fc1(x))
-        x = F.relu(self.fc2(x))
-        value = self.fc3(x)
-        return value
+        x = self.fc2(x)
+        return x
 
-# 定义A2C算法
-class A2C:
-    def __init__(self, env : gym.Env):
-        self.env = env
-
-        self.state_dim = env.observation_space.shape[0]
-        # self.state_dim = env.observation_space_size
-        self.action_dim = env.action_space.n
-
-        self.actor = Actor(self.state_dim, self.action_dim)
-        self.critic = Critic(self.state_dim)
-        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=0.001)
-        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=0.001)
-
+# 定义A2C代理
+class A2CAgent:
+    def __init__(self, state_dim, action_dim, lr=0.001, gamma=0.99):
+        self.actor = Actor(state_dim, action_dim).to(device)
+        self.critic = Critic(state_dim).to(device)
+        self.optimizer_actor = optim.Adam(self.actor.parameters(), lr=lr)
+        self.optimizer_critic = optim.Adam(self.critic.parameters(), lr=lr)
+        self.gamma = gamma
+        
     def select_action(self, state):
-        state = torch.from_numpy(state).float().unsqueeze(0)
-        logits = self.actor(state)
-        probs = F.softmax(logits, dim=1)
-        m = Categorical(probs)
-        action = m.sample()
+        state = torch.FloatTensor(state).unsqueeze(0).to(device)
+        action_probs = self.actor(state)
+        dist = Categorical(action_probs)
+        action = dist.sample()
         return action.item()
-
+    
     def update(self, states, actions, rewards, next_states, dones):
-        states = torch.FloatTensor(states)
-        actions = torch.LongTensor(actions)
-        rewards = torch.FloatTensor(rewards)
-        next_states = torch.FloatTensor(next_states)
-        dones = torch.FloatTensor(dones)
-
-        # 计算TD误差
-        values = self.critic(states).squeeze()
-        next_values = self.critic(next_states).squeeze()
-        td_targets = rewards + 0.99 * next_values * (1 - dones)
-        td_errors = td_targets - values
-
-        # 更新Critic网络参数
-        critic_loss = td_errors.pow(2).mean()
-        self.critic_optimizer.zero_grad()
-        critic_loss.backward()
-        self.critic_optimizer.step()
-
-        # 更新Actor网络参数
-        logits = self.actor(states)
-        probs = F.softmax(logits, dim=1)
-        m = Categorical(probs)
-        log_probs = m.log_prob(actions)
-        actor_loss = -(log_probs * td_errors.detach()).mean()
-        self.actor_optimizer.zero_grad()
+        states = torch.FloatTensor(states).to(device)
+        actions = torch.LongTensor(actions).unsqueeze(1).to(device)
+        rewards = torch.FloatTensor(rewards).unsqueeze(1).to(device)
+        next_states = torch.FloatTensor(next_states).to(device)
+        dones = torch.FloatTensor(dones).unsqueeze(1).to(device)
+        
+        # 计算Advantage
+        values = self.critic(states)
+        next_values = self.critic(next_states)
+        advantages = rewards + self.gamma * next_values * (1 - dones) - values
+        
+        # 更新Actor网络
+        self.optimizer_actor.zero_grad()
+        action_probs = self.actor(states)
+        dist = Categorical(action_probs)
+        log_probs = dist.log_prob(actions.squeeze(1))
+        actor_loss = -(log_probs * advantages.detach()).mean()
         actor_loss.backward()
-        self.actor_optimizer.step()
+        self.optimizer_actor.step()
+        
+        # 更新Critic网络
+        self.optimizer_critic.zero_grad()
+        critic_loss = advantages.pow(2).mean()
+        critic_loss.backward()
+        self.optimizer_critic.step()
 
-    def train(self, num_episodes):
-        x = []
-        y = []
-        for episode in range(num_episodes):
-            # first observation
-            state = self.env.reset()
-            done = False
-            episode_reward = 0
+# 训练A2C代理
+def train_a2c(env, agent, num_episodes):
+    x = []
+    y = []
+    for episode in range(num_episodes):
+        state = env.reset()
+        done = False
 
-            states, actions, rewards, next_states, dones = [], [], [], [], []
+        states, actions, rewards, next_states, dones = [], [], [], [], []
 
-            while not done:
-                action = self.select_action(state)
-                next_state, reward, done, _ = self.env.step(action)
+        while not done:
+            action = agent.select_action(state)
+            next_state, reward, done = env.step(action)
 
-                states.append(state)
-                actions.append(action)
-                rewards.append(reward)
-                next_states.append(next_state)
-                dones.append(done)
+            states.append(state)
+            actions.append(action)
+            rewards.append(reward)
+            next_states.append(next_state)
+            dones.append(done)
 
-                state = next_state
-                episode_reward += reward
+            state = next_state
 
-            self.update(states, actions, rewards, next_states, dones)
-            x.append(episode)
-            y.append(episode_reward)
-            print(f"Episode {episode + 1}, Reward: {episode_reward}")
-        return x,y
+        agent.update(states, actions, rewards, next_states, dones)
 
-# 创建OpenAI Gym环境
-env = gym.make('CartPole-v1')
+        if episode % 10 == 0:
+            print("Episode: {}, Reward: {}".format(episode, np.sum(rewards)))
+        
+        x.append(episode)
+        y.append(np.sum(rewards))
+    return x,y
 
-# 创建A2C实例并训练
-agent = A2C(env)
-x,y = agent.train(num_episodes=100)
+cfg = config()
+env = EnergyPlusEnvironment(cfg=cfg)
+# 定义环境和代理参数
+state_dim = env.observation_space_size  # 状态维度
+action_dim = env.action_space_size  # 动作维度
+lr = 0.001  # 学习率
+gamma = 0.99  # 折扣因子
+num_episodes = 1000  # 训练的总回合数
+
+agent = A2CAgent(state_dim, action_dim, lr=lr, gamma=gamma)
+
+# 训练A2C代理
+x,y = train_a2c(env, agent, num_episodes)
+
 import matplotlib.pyplot as plt
 plt.plot(x,y,color = 'r')
 plt.show()
