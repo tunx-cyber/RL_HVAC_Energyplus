@@ -119,7 +119,6 @@ agent = A2CAgent(state_dim, action_dim, lr=lr, gamma=gamma)
 
 # 训练A2C代理
 x,y = train_a2c(env, agent, num_episodes)
-
 import matplotlib.pyplot as plt
 plt.plot(x,y,color = 'r')
 plt.show()
