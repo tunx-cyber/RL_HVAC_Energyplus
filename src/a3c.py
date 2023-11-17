@@ -85,7 +85,7 @@ class A2CAgent:
 
 
 def train_a3c(global_agent : A2CAgent,
-              rank,res):
+              rank,res, file_suffix):
     torch.manual_seed(rank)
     cfg = config()
     env = EnergyPlusEnvironment(cfg=cfg)
@@ -100,7 +100,7 @@ def train_a3c(global_agent : A2CAgent,
     agent.optimizer_actor = optim.Adam(global_agent.actor.parameters(), lr)
     agent.optimizer_critic = optim.Adam(global_agent.critic.parameters(), lr)
     for episode in range(num_episodes):
-        state = env.reset()
+        state = env.reset(file_suffix)
         done = False
 
         states, actions, rewards, next_states, dones = [], [], [], [], []
@@ -143,8 +143,8 @@ def main():
 
     processes = []
     res = []
-    for rank in range(6):
-        p = mp.Process(target=train_a3c, args=(global_agent,rank,res))
+    for rank in range(6):# 解决访问冲突问题，修改生成文件的文件名
+        p = mp.Process(target=train_a3c, args=(global_agent,rank,res,str(rank)))
         p.start()
         processes.append(p)
     

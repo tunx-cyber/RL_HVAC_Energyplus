@@ -205,7 +205,7 @@ class EnergyPlus:
         a = np.linspace(19,25,7)
         return list(itertools.product(a, repeat=action_size))
     
-    def start(self):
+    def start(self, suffix = "defalut"):
         self.energyplus_state = self.energyplus_api.state_manager.new_state()
         runtime = self.energyplus_api.runtime
 
@@ -245,7 +245,7 @@ class EnergyPlus:
             target=_run_energyplus,
             args=(
                 self.energyplus_api.runtime,
-                self.make_eplus_args(),
+                self.make_eplus_args(suffix),
                 self.energyplus_state,
                 self.sim_results
             )
@@ -316,7 +316,7 @@ class EnergyPlus:
                 q.get()
 
 
-    def make_eplus_args(self):
+    def make_eplus_args(self, suffix = "default"):
         args = [
             "-i",
             idd_file,
@@ -324,6 +324,8 @@ class EnergyPlus:
             epw_file,
             "-d",
             "res",
+            "-p",
+            suffix,
             "-x",
             "-r",
             idf_file,

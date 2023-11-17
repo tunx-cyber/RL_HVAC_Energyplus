@@ -22,7 +22,7 @@ class EnergyPlusEnvironment:
         self.action_space_size = self.energyplus.action_space_size
 
     # return a first observation
-    def reset(self):
+    def reset(self, file_suffix = "defalut"):
         self.episode += 1
         # self.last_obs = self.sample()
 
@@ -37,7 +37,7 @@ class EnergyPlusEnvironment:
             act_queue = self.act_queue
         )
 
-        self.energyplus.start()
+        self.energyplus.start(file_suffix)
 
         obs = self.obs_queue.get()
         self.last_obs = obs
@@ -68,7 +68,7 @@ class EnergyPlusEnvironment:
         return obs_vec, reward, done
 
     def get_reward(self):
-        # TODO
+
         # according to the meters and variables to compute
         obs = self.last_obs
         
