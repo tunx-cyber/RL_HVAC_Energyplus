@@ -10,8 +10,8 @@ class EnergyPlusEnvironment:
         self.timestep = 0
 
         self.last_obs = {}
-        self.obs_queue = None # this queue and the energyplus's queue is the same obj
-        self.act_queue = None # this queue and the energyplus's queue is the same obj
+        self.obs_queue : Queue= None # this queue and the energyplus's queue is the same obj
+        self.act_queue : Queue= None # this queue and the energyplus's queue is the same obj
         self.energyplus: Energyplus.EnergyPlus= Energyplus.EnergyPlus(None,None)
 
         # observation space is a two dimentional array
@@ -23,6 +23,7 @@ class EnergyPlusEnvironment:
 
     # return a first observation
     def reset(self, file_suffix = "defalut"):
+        self.energyplus.stop()
         self.episode += 1
         # self.last_obs = self.sample()
 
