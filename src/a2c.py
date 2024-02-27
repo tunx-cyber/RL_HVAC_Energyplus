@@ -7,7 +7,7 @@ from EnergyplusEnv import EnergyPlusEnvironment
 import torch.nn.functional as F
 from torch.distributions import Categorical
 
-device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")    
 # 定义Actor网络
 class Actor(nn.Module):
     def __init__(self, state_dim, action_dim):
@@ -74,6 +74,10 @@ class A2CAgent:
         critic_loss = advantages.pow(2).mean()
         critic_loss.backward()
         self.optimizer_critic.step()
+    
+    def save(self):
+        torch.save(self.actor.state_dict(), "actor.pth")
+        torch.save(self.critic.state_dict(), "critic.pth")
 
 # 训练A2C代理
 def train_a2c(env, agent, num_episodes):
@@ -86,7 +90,8 @@ def train_a2c(env, agent, num_episodes):
         states, actions, rewards, next_states, dones = [], [], [], [], []
 
         while not done:
-            action = agent.select_action(state)
+            action = agent.select_action(state) # 这里改为多个agent选择
+                                                # 相应的所有的next_state action要单独一个agent，不过reward和done是通用的，需要适当修改
             next_state, reward, done = env.step(action)
 
             states.append(state)
@@ -113,7 +118,7 @@ state_dim = env.observation_space_size  # 状态维度
 action_dim = env.action_space_size  # 动作维度
 lr = 0.001  # 学习率
 gamma = 0.99  # 折扣因子
-num_episodes = 1000  # 训练的总回合数
+num_episodes = 200  # 训练的总回合数
 
 agent = A2CAgent(state_dim, action_dim, lr=lr, gamma=gamma)
 
