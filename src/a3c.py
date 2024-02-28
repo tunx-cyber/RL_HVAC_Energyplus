@@ -93,7 +93,7 @@ def train_a3c(global_agent : A2CAgent,
     action_dim = env.action_space_size  # 动作维度
     lr = 0.001  # 学习率
     gamma = 0.99  # 折扣因子
-    num_episodes = 100  # 训练的总回合数
+    num_episodes = 10  # 训练的总回合数
     agent = A2CAgent(state_dim=state_dim, action_dim=action_dim,lr=lr,gamma=gamma)
     agent.actor.load_state_dict(global_agent.actor.state_dict())
     agent.critic.load_state_dict(global_agent.critic.state_dict())
@@ -143,13 +143,14 @@ def main():
 
     processes = []
     res = []
-    for rank in range(6):# 解决访问冲突问题，修改生成文件的文件名
+    for rank in range(2):# 解决访问冲突问题，修改生成文件的文件名
         p = mp.Process(target=train_a3c, args=(global_agent,rank,res,str(rank)))
         p.start()
         processes.append(p)
     
     for p in processes:
         p.join()
+    print("finish")
     import matplotlib.pyplot as plt
     for rank in range(len(res)):
             
