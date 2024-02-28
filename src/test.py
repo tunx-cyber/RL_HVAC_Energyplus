@@ -27,13 +27,11 @@ while not done:
                                         # 相应的所有的next_state action要单独一个agent，不过reward和done是通用的，需要适当修改
     next_state, reward, done = env.step(action)
 
-    states.append(state)
-    actions.append(action)
-    rewards.append(reward)
-    next_states.append(next_state)
-    dones.append(done)
-
     state = next_state
 
 # get result
 print(env.total_reward,env.total_energy, env.temp_penalty)
+
+# TODO multi agent
+# TODO problem in solution space
+# 
