@@ -48,7 +48,7 @@ class A2CAgent:
         action = dist.sample()
         return action.item()
     
-    def update(self, states, actions, rewards, next_states, dones):
+    def update(self, states, actions, rewards, next_states, dones): # TODO: add comment for RL
         states = torch.FloatTensor(states).to(device)
         actions = torch.LongTensor(actions).unsqueeze(1).to(device)
         rewards = torch.FloatTensor(rewards).unsqueeze(1).to(device)
@@ -81,6 +81,7 @@ class A2CAgent:
 
 # 训练A2C代理
 def train_a2c(env, agent, num_episodes):
+    max_reward = float("-inf")
     x = []
     y = []
     for episode in range(num_episodes):
@@ -103,27 +104,33 @@ def train_a2c(env, agent, num_episodes):
             state = next_state
 
         agent.update(states, actions, rewards, next_states, dones)
-
+        
+        total_reward = np.sum(rewards)
         if episode % 10 == 0:
-            print("Episode: {}, Reward: {}".format(episode, np.sum(rewards)))
+            print("Episode: {}, Reward: {}".format(episode, total_reward))
         
         x.append(episode)
-        y.append(np.sum(rewards))
+        y.append(total_reward)
+        if total_reward > max_reward:
+            agent.save()
+            max_reward = total_reward
     return x,y
 
-cfg = config()
-env = EnergyPlusEnvironment(cfg=cfg)
-# 定义环境和代理参数
-state_dim = env.observation_space_size  # 状态维度
-action_dim = env.action_space_size  # 动作维度
-lr = 0.001  # 学习率
-gamma = 0.99  # 折扣因子
-num_episodes = 200  # 训练的总回合数
 
-agent = A2CAgent(state_dim, action_dim, lr=lr, gamma=gamma)
+if __name__ == "__main__":
+    cfg = config()
+    env = EnergyPlusEnvironment(cfg=cfg)
+    # 定义环境和代理参数
+    state_dim = env.observation_space_size  # 状态维度
+    action_dim = env.action_space_size  # 动作维度
+    lr = 0.001  # 学习率
+    gamma = 0.99  # 折扣因子
+    num_episodes = 1000  # 训练的总回合数
 
-# 训练A2C代理
-x,y = train_a2c(env, agent, num_episodes)
-import matplotlib.pyplot as plt
-plt.plot(x,y,color = 'r')
-plt.show()
+    agent = A2CAgent(state_dim, action_dim, lr=lr, gamma=gamma)
+
+    # 训练A2C代理
+    x,y = train_a2c(env, agent, num_episodes)
+    import matplotlib.pyplot as plt
+    plt.plot(x,y,color = 'r')
+    plt.show()
