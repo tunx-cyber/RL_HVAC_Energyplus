@@ -3,7 +3,7 @@ import sys
 sys.path.insert(0,r"C:\EnergyPlusV23-1-0")
 from pyenergyplus.api import EnergyPlusAPI
 from pyenergyplus.datatransfer import DataExchange
-
+import math
 import numpy as np
 import csv
 from functools import lru_cache
@@ -378,7 +378,9 @@ class RuleBased:
                 try:
                     self.last_obs = obs = self.obs_queue.get(timeout=timeout)
                     self.compute_reward()
-                    self.act_queue.put(self.get_action(), timeout=timeout)
+                    action = self.get_action()
+                    #print(action)
+                    self.act_queue.put(action, timeout=timeout)
                 except(Full, Empty):
                     done = True
                     obs = self.last_obs
@@ -436,17 +438,17 @@ class RuleBased:
         
         for i in range(len(temps_vals)):
             if occups_vals[i] <= 0.001:
-                action_val.append(temps_vals[i])
-                action_val.append(temps_vals[i])
+                action_val.append(math.floor( temps_vals[i]) )
+                action_val.append(math.floor(temps_vals[i]))
             elif self.cfg.T_MIN <= temps_vals[i] <= self.cfg.T_MAX:
-                action_val.append(temps_vals[i])
-                action_val.append(temps_vals[i])
+                action_val.append(math.floor( temps_vals[i]) )
+                action_val.append(math.floor( temps_vals[i]) )
             elif temps_vals[i] < self.cfg.T_MIN :
-                action_val.append(temps_vals[i] + 1)
-                action_val.append(temps_vals[i] + 1)
+                action_val.append(math.floor( temps_vals[i] + 1) )
+                action_val.append(math.floor( temps_vals[i] + 1) )
             else:
-                action_val.append(temps_vals[i] - 1)
-                action_val.append(temps_vals[i] - 1)
+                action_val.append(math.floor( temps_vals[i] - 1))
+                action_val.append(math.floor( temps_vals[i] - 1) )
         
         return action_val
 
