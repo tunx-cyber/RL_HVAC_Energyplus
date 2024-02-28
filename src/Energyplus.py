@@ -49,6 +49,8 @@ class EnergyPlus:
         # or look up the html file
         '''
         space1-1 都是idf文件里面自定义的名字
+        html文件里面也有，可以一个一个试
+        csv文件里面也有
         '''
         # variables
         self.variables = {
@@ -286,18 +288,21 @@ class EnergyPlus:
             return 
         if self.act_queue.empty():
             return
+        
+        # softmax后是给的是一个投票，是index
         action_idx = self.act_queue.get()
         actions = self.transform_action(action_idx)
         n = len(actions)
         heat = []
         for i in range(n):
-            heat.append(actions[i]-1)
+            heat.append(actions[i])
         real_act = []
         for i in range(len(actions)):
             real_act.append(actions[i])
             real_act.append(heat[i])
 
         actions = real_act
+
         for i in range(len(self.actuator_handles)):
             # Effective heating set-point higher than effective cooling set-point err
             self.dx.set_actuator_value(
@@ -305,6 +310,7 @@ class EnergyPlus:
                 actuator_handle=list(self.actuator_handles.values())[i],
                 actuator_value=actions[i]
             )
+        # print(actions)
             
 
     def transform_action(self,action):
@@ -404,6 +410,3 @@ class EnergyPlus:
     
     def failed(self) -> bool:
         return self.sim_results.get("exit_code", -1) > 0
-
-# test = EnergyPlus()
-# test.start()
