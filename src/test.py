@@ -17,7 +17,7 @@ agent.actor.load_state_dict(torch.load("actor.pth"))
 agent.critic.load_state_dict(torch.load("critic.pth"))
 
 # run model
-state = env.reset()
+state = env.reset("test")
 done = False
 
 states, actions, rewards, next_states, dones = [], [], [], [], []
@@ -36,4 +36,4 @@ while not done:
     state = next_state
 
 # get result
-    
+print(env.total_reward,env.total_energy, env.temp_penalty)
