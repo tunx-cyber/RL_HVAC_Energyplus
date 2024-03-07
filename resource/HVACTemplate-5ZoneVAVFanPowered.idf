@@ -177,12 +177,12 @@
 !    Yes;                     !- Use WeatherFile Snow Indicators
 
   RunPeriod,
-    Run Period 2,            !- Name
-    1,                       !- Begin Month
-    14,                      !- Begin Day of Month
+    Run Period 1,            !- Name
+    7,                       !- Begin Month
+    13,                      !- Begin Day of Month
     ,                        !- Begin Year
-    1,                       !- End Month
-    14,                      !- End Day of Month
+    7,                       !- End Month
+    13,                      !- End Day of Month
     ,                        !- End Year
     Tuesday,                 !- Day of Week for Start Day
     Yes,                     !- Use Weather File Holidays and Special Days
@@ -192,7 +192,7 @@
     Yes;                     !- Use Weather File Snow Indicators
 
   RunPeriod,
-    Run Period 3,            !- Name
+    Run Period 2,            !- Name
     7,                       !- Begin Month
     7,                       !- Begin Day of Month
     ,                        !- Begin Year
