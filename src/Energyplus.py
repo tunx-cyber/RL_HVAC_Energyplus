@@ -203,8 +203,8 @@ class EnergyPlus:
 
     @lru_cache(1)
     def get_valid_action_space(self):
-        action_size = len(self.actuators)//2
-        a = np.linspace(19,25,7)
+        action_size = len(self.actuators)//2 # heat and cool
+        a = np.linspace(19,24,6)
         return list(itertools.product(a, repeat=action_size))
     
     def start(self, suffix = "defalut"):
@@ -238,8 +238,8 @@ class EnergyPlus:
 
         # run EnergyPlus in a non-blocking way
         def _run_energyplus(runtime, cmd_args, state, results):
-            print(f"running EnergyPlus with args: {cmd_args}")
-
+            # print(f"running EnergyPlus with args: {cmd_args}")
+            self.energyplus_api.runtime.set_console_output_status(state=state,print_output=False)
             # start simulation
             results["exit_code"] = runtime.run_energyplus(state, cmd_args)
             
@@ -281,8 +281,6 @@ class EnergyPlus:
         # print(f"obs: {self.next_obs}")
         self.obs_queue.put(self.next_obs) 
         
-    # TODO: 不能直接set数值，因为值可能太离谱了，ep会出错，还有就是也不方便训练
-    # 应该规定一个执行空间
     def _send_actions(self, state_argument):
         if self.simulation_complete or not self._init_callback(state_argument):
             return 
@@ -310,7 +308,6 @@ class EnergyPlus:
                 actuator_handle=list(self.actuator_handles.values())[i],
                 actuator_value=actions[i]
             )
-        # print(actions)
             
 
     def transform_action(self,action):
