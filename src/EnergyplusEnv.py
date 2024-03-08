@@ -24,7 +24,7 @@ class EnergyPlusEnvironment:
         self.last_obs = {}
         self.obs_queue : Queue= None # this queue and the energyplus's queue is the same obj
         self.act_queue : Queue= None # this queue and the energyplus's queue is the same obj
-        self.energyplus: Energyplus.EnergyPlus= Energyplus.EnergyPlus(None,None,actions)
+        self.energyplus: Energyplus.EnergyPlus= Energyplus.EnergyPlus(None,None,actions,get_action_f)
 
         # observation space is a two dimentional array
         # the firt is the action variable
