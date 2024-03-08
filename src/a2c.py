@@ -3,9 +3,10 @@ import torch.nn as nn
 import torch.optim as optim
 import numpy as np
 from Config import config
-from EnergyplusEnv import EnergyPlusEnvironment
+import EnergyplusEnv
 import torch.nn.functional as F
 from torch.distributions import Categorical
+import matplotlib.pyplot as plt
 
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")    
 # 定义Actor网络
@@ -13,23 +14,27 @@ class Actor(nn.Module):
     def __init__(self, state_dim, action_dim):
         super(Actor, self).__init__()
         self.fc1 = nn.Linear(state_dim, 64)
-        self.fc2 = nn.Linear(64, action_dim)
+        self.fc2 = nn.Linear(64, 128)
+        self.fc3 = nn.Linear(128,action_dim)
         
     def forward(self, x):
         x = F.relu(self.fc1(x))
-        x = F.softmax(self.fc2(x), dim=-1)
+        x = F.relu(self.fc2(x))
+        x = F.softmax(self.fc3(x), dim=-1)
         return x
 
 # 定义Critic网络
 class Critic(nn.Module):
     def __init__(self, state_dim):
         super(Critic, self).__init__()
-        self.fc1 = nn.Linear(state_dim, 64)
-        self.fc2 = nn.Linear(64, 1)
+        self.fc1 = nn.Linear(state_dim, 128)
+        self.fc2 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(64, 1)
         
     def forward(self, x):
         x = F.relu(self.fc1(x))
-        x = self.fc2(x)
+        x = F.relu(self.fc2(x))
+        x = self.fc3(x)
         return x
 
 # 定义A2C代理
@@ -42,29 +47,31 @@ class A2CAgent:
         self.gamma = gamma
         
     def select_action(self, state):
-        state = torch.FloatTensor(state).unsqueeze(0).to(device)
-        action_probs = self.actor(state)
+        state_ = torch.FloatTensor(state).unsqueeze(0).to(device)
+        action_probs = self.actor(state_)
         dist = Categorical(action_probs)
         action = dist.sample()
         return action.item()
     
     def update(self, states, actions, rewards, next_states, dones): # TODO: add comment for RL
-        states = torch.FloatTensor(states).to(device)
-        actions = torch.LongTensor(actions).unsqueeze(1).to(device)
-        rewards = torch.FloatTensor(rewards).unsqueeze(1).to(device)
-        next_states = torch.FloatTensor(next_states).to(device)
-        dones = torch.FloatTensor(dones).unsqueeze(1).to(device)
+        # transform into tensor
+        nxt_state = torch.FloatTensor(next_states[-1]).to(device)
+        states_ = torch.FloatTensor(states).to(device)
+        actions_ = torch.LongTensor(actions).unsqueeze(1).to(device)
+        rewards_ = torch.FloatTensor(rewards).unsqueeze(1).to(device)
+        dones_ = torch.FloatTensor(dones).unsqueeze(1).to(device)
         
         # 计算Advantage
-        values = self.critic(states)
-        next_values = self.critic(next_states)
-        advantages = rewards + self.gamma * next_values * (1 - dones) - values
+        values = self.critic(states_)
+        next_value = self.critic(nxt_state)
+        returns = self.discount_with_dones(next_value, rewards_, dones_)
+        advantages = torch.cat(returns).detach() - values
         
         # 更新Actor网络
         self.optimizer_actor.zero_grad()
-        action_probs = self.actor(states)
-        dist = Categorical(action_probs)
-        log_probs = dist.log_prob(actions.squeeze(1))
+        action_probs = self.actor(states_)
+        dist = Categorical(action_probs) # distribution of probablity
+        log_probs = dist.log_prob(actions_.squeeze(1))
         actor_loss = -(log_probs * advantages.detach()).mean()
         actor_loss.backward()
         self.optimizer_actor.step()
@@ -75,12 +82,33 @@ class A2CAgent:
         critic_loss.backward()
         self.optimizer_critic.step()
     
+    def discount_with_dones(self, next_value, rewards, dones):
+        returns = []
+        R = next_value
+        for step in reversed(range(len(rewards))):
+            R = rewards[step] + self.gamma * R * (1.0 - dones[step])
+            returns.insert(0, R)
+        return returns
+    
     def save(self):
         torch.save(self.actor.state_dict(), "actor.pth")
         torch.save(self.critic.state_dict(), "critic.pth")
 
 # 训练A2C代理
-def train_a2c(env, agent, num_episodes):
+def train_a2c():
+
+    # basic setting
+    cfg = config()
+    env = EnergyplusEnv.EnergyPlusEnvironment(cfg=cfg)
+    # 定义环境和代理参数
+    state_dim = env.observation_space_size  # 状态维度
+    action_dim = env.action_space_size  # 动作维度
+    lr = 0.001  # 学习率
+    gamma = 0.99  # 折扣因子
+    num_episodes = 100  # 训练的总回合数
+
+    agent = A2CAgent(state_dim, action_dim, lr=lr, gamma=gamma)
+
     max_reward = float("-inf")
     x = []
     y = []
@@ -90,6 +118,8 @@ def train_a2c(env, agent, num_episodes):
 
         states, actions, rewards, next_states, dones = [], [], [], [], []
 
+        # 从7:15 到 21:00
+        # 29 到 84的时间步 在energyplus.py里面改
         while not done:
             action = agent.select_action(state) # 这里改为多个agent选择
                                                 # 相应的所有的next_state action要单独一个agent，不过reward和done是通用的，需要适当修改
@@ -114,23 +144,12 @@ def train_a2c(env, agent, num_episodes):
         if total_reward > max_reward:
             agent.save()
             max_reward = total_reward
-    return x,y
+
+    return x, y
 
 
 if __name__ == "__main__":
-    cfg = config()
-    env = EnergyPlusEnvironment(cfg=cfg)
-    # 定义环境和代理参数
-    state_dim = env.observation_space_size  # 状态维度
-    action_dim = env.action_space_size  # 动作维度
-    lr = 0.001  # 学习率
-    gamma = 0.99  # 折扣因子
-    num_episodes = 1000  # 训练的总回合数
+    x,y = train_a2c()
 
-    agent = A2CAgent(state_dim, action_dim, lr=lr, gamma=gamma)
-
-    # 训练A2C代理
-    x,y = train_a2c(env, agent, num_episodes)
-    import matplotlib.pyplot as plt
     plt.plot(x,y,color = 'r')
     plt.show()
