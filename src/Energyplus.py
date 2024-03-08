@@ -205,7 +205,9 @@ class EnergyPlus:
         self.actuator_handles: Dict[str, int] = {}
 
         self.action_space = action_space
-        self.action_space_size = len(self.action_space)
+        self.action_space_size = 0
+        if self.action_space is not None :
+            self.action_space_size = len(self.action_space)
         self.get_action_func = get_action_func
 
     
@@ -291,7 +293,7 @@ class EnergyPlus:
         
         # softmax后是给的是一个投票，是index
         action_idx = self.act_queue.get()
-
+        # print(action_idx)
         actions = self.get_action_func(self.action_space, action_idx)
 
         for i in range(len(self.actuator_handles)):
