@@ -1,41 +1,45 @@
 import torch
 import torch.nn as nn
 import torch.optim as optim
+import torch.nn.functional as F
 import numpy as np
 from torch.distributions import Categorical
 import matplotlib.pyplot as plt
-# 定义 Actor 网络
+from multi_agent_env import Multi_Agent_Env
+import Config
+device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class Actor(nn.Module):
     def __init__(self, state_dim, action_dim):
         super(Actor, self).__init__()
         self.fc1 = nn.Linear(state_dim, 64)
-        self.fc2 = nn.Linear(64, 64)
-        self.fc3 = nn.Linear(64, action_dim)
-    
-    def forward(self, state):
-        x = torch.relu(self.fc1(state))
-        x = torch.relu(self.fc2(x))
-        x = torch.softmax(self.fc3(x), dim=1)
+        self.fc2 = nn.Linear(64, 128)
+        self.fc3 = nn.Linear(128,action_dim)
+        
+    def forward(self, x):
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
+        x = F.softmax(self.fc3(x), dim=-1)
         return x
 
-# 定义 Critic 网络
+# 定义Critic网络
 class Critic(nn.Module):
     def __init__(self, state_dim):
         super(Critic, self).__init__()
-        self.fc1 = nn.Linear(state_dim, 64)
-        self.fc2 = nn.Linear(64, 64)
+        self.fc1 = nn.Linear(state_dim, 128)
+        self.fc2 = nn.Linear(128, 64)
         self.fc3 = nn.Linear(64, 1)
-    
-    def forward(self, state):
-        x = torch.relu(self.fc1(state))
-        x = torch.relu(self.fc2(x))
+        
+    def forward(self, x):
+        x = F.relu(self.fc1(x))
+        x = F.relu(self.fc2(x))
         x = self.fc3(x)
         return x
 
 class A2C_MA:
     def __init__(self, num_agnets, state_dim, action_dim) -> None:
         self.num_agnets = num_agnets
-        self.actors = [Actor(state_dim=state_dim, action_dim=action_dim) for _ in range(num_agnets)]
+        self.gamma = 0.99
+        self.actors = [Actor(state_dim=state_dim, action_dim=action_dim).to(device=device) for _ in range(num_agnets)]
         '''
         只是用一个critic
         1. 参数共享：显著降低模型的计算复杂度和内存占用。
@@ -47,49 +51,79 @@ class A2C_MA:
         5. 训练不稳定：由于共享 Critic 网络，不同智能体的训练样本可能会高度相关，这可能导致训练的不稳定性
         6. 难以学习个体策略：共享 Critic 网络可能会限制智能体学习个体策略的能力。由于 Critic 网络是共享的，它可能更倾向于学习全局性的策略，而忽视个体智能体的差异性和特殊需求。
         '''
-        self.critic = Critic(state_dim) 
-        
-        self.actor_optimizer = optim.Adam(self.actor.parameters(), lr=0.001)
+        self.critic = Critic(state_dim).to(device)
+        self.actor_optimizers =[ optim.Adam(self.actors[i].parameters(), lr=0.001) for i in range(num_agnets)]
         self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=0.001)
-        self.device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+        
     
     def get_action(self, agent_index, state):
-        state = torch.tensor(state, dtype=torch.float32)
-        action_probs = self.actor(state)
+        state_ = torch.FloatTensor(state).unsqueeze(0).to(device)
+        action_probs = self.actors[agent_index](state_)
         dist = Categorical(action_probs)
         action = dist.sample()
         return action.item()
-    
+
     def update(self, agent_index, states, actions, rewards, next_states, dones, gamma=0.99):
-        state = torch.tensor(states[agent_index], dtype=torch.float32).to(device=self.device)
-        action = torch.tensor(actions[agent_index], dtype=torch.long).unsqueeze(1).to(device=self.device)
-        reward = torch.tensor(rewards[agent_index], dtype=torch.float32).to(device=self.device)
-        next_state = torch.tensor(next_states[agent_index], dtype=torch.float32).to(device=self.device)
-        done = torch.tensor(dones[agent_index], dtype=torch.float32).to(device=self.device)
+         
+        nxt_state = torch.FloatTensor(next_states[-1]).to(device=device)
+        states_ = torch.FloatTensor(states).to(device=device)
+        actions_ = torch.LongTensor(np.array(actions)[:,agent_index]).unsqueeze(1).to(device=device)
+        rewards_ = torch.FloatTensor(np.array(rewards)[:,agent_index]).unsqueeze(1).to(device=device)
+        dones_ = torch.FloatTensor(dones).unsqueeze(1).to(device=device)
         
+ 
         # 计算 Advantage
         # unsqueeze 方法用于在指定位置增加维度。它在指定位置插入一个维度大小为 1 的维度。
         # squeeze 方法用于压缩维度为 1 的维度。它会移除维度大小为 1 的维度，使张量更紧凑。
-        value = self.critic(state.unsqueeze(0)).squeeze(0)
-        next_value = self.critic(next_state.unsqueeze(0)).squeeze(0)
-        advantage = reward + gamma * (1 - done) * next_value - value
+        values = self.critic(states_)
+        next_value = self.critic(nxt_state)
+        returns = self.discount_with_dones(next_value, rewards_, dones_)
+        advantages = torch.cat(returns).detach() - values
         
-        # 更新 Critic 网络
-        critic_loss = nn.MSELoss()(value, reward + gamma * (1 - done) * next_value)
+        # 更新Actor网络
+        self.actor_optimizers[agent_index].zero_grad()
+        action_probs = self.actors[agent_index](states_)
+        dist = Categorical(action_probs) # distribution of probablity
         
+        log_probs = dist.log_prob(actions_.squeeze(1))
+        actor_loss = -(log_probs * advantages.detach()).mean()
+        actor_loss.backward()
+        self.actor_optimizers[agent_index].step()
+        
+        # 更新Critic网络
         self.critic_optimizer.zero_grad()
+        critic_loss = advantages.pow(2).mean()
         critic_loss.backward()
         self.critic_optimizer.step()
-        
-        # 更新 Actor 网络
-        action_probs = self.actor(state.unsqueeze(0)).squeeze(0)
-        log_probs = torch.log(action_probs.gather(1, action))
-        actor_loss = -(log_probs * advantage.detach()).mean()
-        
-        self.actor_optimizer.zero_grad()
-        actor_loss.backward()
-        self.actor_optimizer.step()
 
+        # value = self.critic(state.unsqueeze(0)).squeeze(0)
+        # next_value = self.critic(next_state.unsqueeze(0)).squeeze(0)
+        # advantage = reward + gamma * (1 - done) * next_value - value
+        
+        # # 更新 Critic 网络
+        # critic_loss = nn.MSELoss()(value, reward + gamma * (1 - done) * next_value)
+        
+        # self.critic_optimizer.zero_grad()
+        # critic_loss.backward()
+        # self.critic_optimizer.step()
+        
+        # # 更新 Actor 网络
+        # action_probs = self.actor(state.unsqueeze(0)).squeeze(0)
+        # log_probs = torch.log(action_probs.gather(1, action))
+        # actor_loss = -(log_probs * advantage.detach()).mean()
+        
+        # self.actor_optimizer.zero_grad()
+        # actor_loss.backward()
+        # self.actor_optimizer.step()
+
+    def discount_with_dones(self, next_value, rewards, dones):
+        returns = []
+        R = next_value
+        for step in reversed(range(len(rewards))):
+            R = rewards[step] + self.gamma * R * (1.0 - dones[step])
+            returns.insert(0, R)
+        return returns
+    
     def save(self):
         state_dict_dict = {
             f'agent_{i+1}': x.state_dict() for i, x in enumerate(self.actors)
@@ -130,16 +164,17 @@ def train_multi_agent(env, ma_agent: A2C_MA,num_episodes):
 
             next_state, reward, done = env.step(ma_actions)
             states.append(state)
-            actions.append(ma_actions)
-            rewards.append(reward)
+            actions.append(ma_actions) # 二维数组
+            rewards.append(reward) # 返回的reward是一个数组
             next_states.append(next_state)
             dones.append(done)
 
             state = next_state
         
-        #TODO: update到底是每次step后就执行还是一个回合后就执行
+        #update到底是每次step后就执行还是一个回合后就执行？
+        #如果一个回合有限step可以在一个回合后执行，如果无限，则可以每次step更新
         for idx in range(size):
-            ma_agent.update(idx, states, actions, reward, next_states, dones, 0.99)
+            ma_agent.update(idx, states, actions, rewards, next_states, dones, 0.99)
         
         total_reward = np.sum(rewards)
         episodes.append(i)
@@ -153,5 +188,8 @@ def train_multi_agent(env, ma_agent: A2C_MA,num_episodes):
     plt.plot(episodes, rewards_, color = 'r')
     plt.show()
 
-
-
+if __name__ == "__main__":
+    cfg = Config.config()
+    env = Multi_Agent_Env(cfg=cfg)
+    agents = A2C_MA(5, env.observation_space_size, env.action_space_size)
+    train_multi_agent(env, agents, 100)
