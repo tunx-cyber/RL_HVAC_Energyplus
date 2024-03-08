@@ -6,9 +6,9 @@ from pyenergyplus.datatransfer import DataExchange
 
 import numpy as np
 import csv
-from functools import lru_cache
+
 import threading
-import itertools
+
 from queue import Queue, Empty, Full
 from typing import Dict, Any, Tuple, Optional, List
 
@@ -18,7 +18,13 @@ idd_file = r"C:\EnergyPlusV23-1-0\Energy+.idd"
 
 # data = []
 class EnergyPlus:
-    def __init__(self,obs_queue: Queue = Queue(1), act_queue: Queue = Queue(1)) -> None:
+    '''
+    obs_queue是存放观察值的
+    act_queue是存放动作值的
+    action_space是动作空间
+    get_action_func就是如何根据神经网络或者其他规则获取action_apace里面的值
+    '''
+    def __init__(self,obs_queue: Queue = Queue(1), act_queue: Queue = Queue(1), action_space = None, get_action_func = None) -> None:
 
         # for RL
         self.obs_queue = obs_queue
@@ -198,14 +204,10 @@ class EnergyPlus:
         }
         self.actuator_handles: Dict[str, int] = {}
 
-        self.actions = self.get_valid_action_space()
-        self.action_space_size = len(self.actions)
+        self.action_space = action_space
+        self.action_space_size = len(self.action_space)
+        self.get_action_func = get_action_func
 
-    @lru_cache(1)
-    def get_valid_action_space(self):
-        action_size = len(self.actuators)//2 # heat and cool
-        a = np.linspace(19,24,6)
-        return list(itertools.product(a, repeat=action_size))
     
     def start(self, suffix = "defalut"):
         self.energyplus_state = self.energyplus_api.state_manager.new_state()
@@ -289,17 +291,8 @@ class EnergyPlus:
         
         # softmax后是给的是一个投票，是index
         action_idx = self.act_queue.get()
-        actions = self.transform_action(action_idx)
-        n = len(actions)
-        heat = []
-        for i in range(n):
-            heat.append(actions[i])
-        real_act = []
-        for i in range(len(actions)):
-            real_act.append(actions[i])
-            real_act.append(heat[i])
 
-        actions = real_act
+        actions = self.get_action_func(self.action_space, action_idx)
 
         for i in range(len(self.actuator_handles)):
             # Effective heating set-point higher than effective cooling set-point err
@@ -309,9 +302,6 @@ class EnergyPlus:
                 actuator_value=actions[i]
             )
             
-
-    def transform_action(self,action):
-        return list(self.actions[action])
         
     def _flush_queues(self):
         for q in [self.obs_queue, self.act_queue]:
