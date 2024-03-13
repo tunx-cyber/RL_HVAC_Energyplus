@@ -71,7 +71,7 @@ class EnergyPlus:
             "people_4" : ("Zone People Occupant Count", "SPACE4-1"),
             "people_5" : ("Zone People Occupant Count", "SPACE5-1"),
             'outdoor_air_drybulb_temperature': ('Site Outdoor Air Drybulb Temperature', 'Environment'),
-            "damper_pos": ("Zone Air Terminal VAV Damper Position","SPACE5-1 VAV REHEAT")
+            # "damper_pos": ("Zone Air Terminal VAV Damper Position","SPACE5-1 VAV REHEAT")
         }
         # Heating Coil NaturalGas Energy
         # Cooling Coil Electricity Energy
@@ -94,7 +94,7 @@ class EnergyPlus:
             "elec_hvac": "Electricity:HVAC",
             # "elec_heating" : "Heating:Electricity",
             "elec_cooling" : "Cooling:Electricity",
-            "gas_heating" : "Heating:NaturalGas"
+            # "gas_heating" : "Heating:NaturalGas"
         }
         self.meter_handles: Dict[str, int] = {}
 
