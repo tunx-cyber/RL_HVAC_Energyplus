@@ -7,15 +7,15 @@ import EnergyplusEnv
 import torch.nn.functional as F
 from torch.distributions import Categorical
 import matplotlib.pyplot as plt
-
+from datetime import datetime
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")    
 # 定义Actor网络
 class Actor(nn.Module):
     def __init__(self, state_dim, action_dim):
         super(Actor, self).__init__()
-        self.fc1 = nn.Linear(state_dim, 64)
-        self.fc2 = nn.Linear(64, 128)
-        self.fc3 = nn.Linear(128,action_dim)
+        self.fc1 = nn.Linear(state_dim, 128)
+        self.fc2 = nn.Linear(128, 32)
+        self.fc3 = nn.Linear(32,action_dim)
         
     def forward(self, x):
         x = F.relu(self.fc1(x))
@@ -28,8 +28,8 @@ class Critic(nn.Module):
     def __init__(self, state_dim):
         super(Critic, self).__init__()
         self.fc1 = nn.Linear(state_dim, 128)
-        self.fc2 = nn.Linear(128, 64)
-        self.fc3 = nn.Linear(64, 1)
+        self.fc2 = nn.Linear(128, 32)
+        self.fc3 = nn.Linear(32, 1)
         
     def forward(self, x):
         x = F.relu(self.fc1(x))
@@ -84,9 +84,9 @@ class A2CAgent:
     
     def discount_with_dones(self, next_value, rewards, dones):
         returns = []
-        R = next_value
+        R = 0
         for step in reversed(range(len(rewards))):
-            R = rewards[step] + self.gamma * R * (1.0 - dones[step])
+            R = rewards[step] + self.gamma * R
             returns.insert(0, R)
         return returns
     
@@ -105,11 +105,11 @@ def train_a2c():
     action_dim = env.action_space_size  # 动作维度
     lr = 0.001  # 学习率
     gamma = 0.99  # 折扣因子
-    num_episodes = 100  # 训练的总回合数
+    num_episodes = 200  # 训练的总回合数
 
     agent = A2CAgent(state_dim, action_dim, lr=lr, gamma=gamma)
 
-    max_reward = float("-inf")
+    max_reward = -200
     x = []
     y = []
     for episode in range(num_episodes):
@@ -118,11 +118,11 @@ def train_a2c():
 
         states, actions, rewards, next_states, dones = [], [], [], [], []
 
-        # 从7:15 到 21:00
-        # 29 到 84的时间步 在energyplus.py里面改
+        # 从 7:15 到 21:00
+        # 29 到 84 的时间步 在energyplus.py里面改
         while not done:
-            action = agent.select_action(state) # 这里改为多个agent选择
-                                                # 相应的所有的next_state action要单独一个agent，不过reward和done是通用的，需要适当修改
+            action = agent.select_action(state) 
+
             next_state, reward, done = env.step(action)
 
             states.append(state)
@@ -136,20 +136,24 @@ def train_a2c():
         agent.update(states, actions, rewards, next_states, dones)
         
         total_reward = np.sum(rewards)
-        if episode % 10 == 0:
-            print("Episode: {}, Reward: {}".format(episode, total_reward))
         
         x.append(episode)
         y.append(total_reward)
+
         if total_reward > max_reward:
+            print("update at %s\n\n"%(datetime.now()))
             agent.save()
             max_reward = total_reward
-
+        print(max_reward,total_reward)
     return x, y
 
 
 if __name__ == "__main__":
+    start = datetime.now()
     x,y = train_a2c()
-
+    end = datetime.now()
+    r = end - start
+    print("a2c training time: %s"%r)
     plt.plot(x,y,color = 'r')
+    plt.title(datetime.now())
     plt.show()
