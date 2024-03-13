@@ -69,9 +69,7 @@ class RuleBased:
                     self.act_queue.put(action, timeout=timeout)
                 except(Full, Empty):
                     done = True
-                    obs = self.last_obs
-
-            
+                    obs = self.last_obs           
 
     def compute_reward(self):
         obs = self.last_obs
@@ -100,13 +98,15 @@ class RuleBased:
                 temp_reward += -1
 
 
-        self.energy_cost += obs["elec_cooling"] / 3600000
+        elec_cost = obs["elec_cooling"] / 3600000
+
+        self.energy_cost += elec_cost
 
         self.temp_penalty += temp_reward
         
-        energy_reward = - self.energy_cost
+        energy_reward = - elec_cost
 
-        self.reward += temp_reward*0.1 + energy_reward
+        self.reward += temp_reward*0.1 + energy_reward*0.9
 
     def get_action(self):
 
@@ -131,11 +131,11 @@ class RuleBased:
                 action_val.append(math.floor( temps_vals[i]) )
                 action_val.append(math.floor( temps_vals[i]) )
             elif temps_vals[i] < self.cfg.T_MIN :
-                action_val.append(math.floor(temps_vals[i] + 1) )
-                action_val.append(math.floor(temps_vals[i] + 1) )
+                action_val.append(math.floor( temps_vals[i] + 1) )
+                action_val.append(math.floor( temps_vals[i] + 1) )
             else:
-                action_val.append(math.floor(temps_vals[i] - 1) )
-                action_val.append(math.floor(temps_vals[i] - 1) )
+                action_val.append(math.floor( temps_vals[i] - 1) )
+                action_val.append(math.floor( temps_vals[i] - 1) )
         
         return action_val     
 
