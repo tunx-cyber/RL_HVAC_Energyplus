@@ -35,11 +35,14 @@ class EnergyPlusEnvironment:
         self.action_space_size = len(self.action_space)
 
         self.total_energy = 0
-        self.temp_penalty = 0
+        self.total_temp_penalty = 0
         self.total_reward = 0
 
     # return the first observation
     def reset(self, file_suffix = "defalut"):
+        self.total_temp_penalty = 0
+        self.total_energy = 0
+        self.total_reward = 0
         self.energyplus.stop()
         self.episode += 1
         # self.last_obs = self.sample()
@@ -75,7 +78,7 @@ class EnergyPlusEnvironment:
             done = True
             obs  = self.last_obs
         else:
-            timeout = 2
+            timeout = 1
             try:
                 self.act_queue.put(action,timeout=timeout)
                 self.last_obs = obs = self.obs_queue.get(timeout=timeout)
@@ -105,8 +108,9 @@ class EnergyPlusEnvironment:
             occups_vals.append(obs[occup])
         
         # TODO find a good function to evaluate the temperature reward
+        # 520 oocups timesteps
         for i in range(len(temps_vals)):
-            if occups_vals[i] <= 0.001:
+            if occups_vals[i] < 1:
                 temp_reward += 0
             elif self.cfg.T_MIN <= temps_vals[i] <= self.cfg.T_MAX:
                 temp_reward += 1
@@ -117,15 +121,18 @@ class EnergyPlusEnvironment:
         
         # energy reward
         energy = obs["elec_cooling"] / 3600000
-
         energy_reward = - energy
         self.total_energy += energy
 
-        self.temp_penalty += temp_reward
+        # temperature reward
+        self.total_temp_penalty += temp_reward
 
-        self.total_reward += temp_reward*0.1 + energy_reward
+        # reward combination
+        reward = temp_reward*0.1 + energy_reward
         
-        return temp_reward*0.1 + energy_reward
+        self.total_reward += reward
+
+        return reward
         
 
     def close(self):
