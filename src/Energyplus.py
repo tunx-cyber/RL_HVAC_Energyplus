@@ -79,16 +79,16 @@ class EnergyPlus:
 
         # meters
         self.meters = {
-            "transfer_cool_1" : "Cooling:EnergyTransfer:Zone:SPACE1-1",
-            "transfer_heat_1" : "Heating:EnergyTransfer:Zone:SPACE1-1",
-            "transfer_cool_2" : "Cooling:EnergyTransfer:Zone:SPACE2-1",
-            "transfer_heat_2" : "Heating:EnergyTransfer:Zone:SPACE2-1",
-            "transfer_cool_3" : "Cooling:EnergyTransfer:Zone:SPACE3-1",
-            "transfer_heat_3" : "Heating:EnergyTransfer:Zone:SPACE3-1",
-            "transfer_cool_4" : "Cooling:EnergyTransfer:Zone:SPACE4-1",
-            "transfer_heat_4" : "Heating:EnergyTransfer:Zone:SPACE4-1",
-            "transfer_cool_5" : "Cooling:EnergyTransfer:Zone:SPACE5-1",
-            "transfer_heat_5" : "Heating:EnergyTransfer:Zone:SPACE5-1",
+            # "transfer_cool_1" : "Cooling:EnergyTransfer:Zone:SPACE1-1",
+            # "transfer_heat_1" : "Heating:EnergyTransfer:Zone:SPACE1-1",
+            # "transfer_cool_2" : "Cooling:EnergyTransfer:Zone:SPACE2-1",
+            # "transfer_heat_2" : "Heating:EnergyTransfer:Zone:SPACE2-1",
+            # "transfer_cool_3" : "Cooling:EnergyTransfer:Zone:SPACE3-1",
+            # "transfer_heat_3" : "Heating:EnergyTransfer:Zone:SPACE3-1",
+            # "transfer_cool_4" : "Cooling:EnergyTransfer:Zone:SPACE4-1",
+            # "transfer_heat_4" : "Heating:EnergyTransfer:Zone:SPACE4-1",
+            # "transfer_cool_5" : "Cooling:EnergyTransfer:Zone:SPACE5-1",
+            # "transfer_heat_5" : "Heating:EnergyTransfer:Zone:SPACE5-1",
 
             # https://unmethours.com/question/55005/hvac-energy-consumption/
             "elec_hvac": "Electricity:HVAC",

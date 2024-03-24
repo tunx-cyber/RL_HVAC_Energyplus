@@ -79,7 +79,7 @@ class EnergyPlusEnvironment:
         obs = self.obs_queue.get()
         self.last_obs = obs
 
-        self.indoor_temps.append(obs[x] for x in self.temps_name)
+        self.indoor_temps.append([obs[x] for x in self.temps_name])
         self.outdoor_temp.append(obs["outdoor_air_drybulb_temperature"])
 
         return np.array(list(obs.values()))
@@ -100,8 +100,9 @@ class EnergyPlusEnvironment:
             try:
                 self.setpoints.append(get_action_f(actions,action))
                 self.act_queue.put(action,timeout=timeout)
+                
                 self.last_obs = obs = self.obs_queue.get(timeout=timeout)
-                self.indoor_temps.append(obs[x] for x in self.temps_name)
+                self.indoor_temps.append([obs[x] for x in self.temps_name])
                 self.outdoor_temp.append(obs["outdoor_air_drybulb_temperature"])
 
             except(Full, Empty):
@@ -161,33 +162,30 @@ class EnergyPlusEnvironment:
         if self.energyplus is not None:
             self.energyplus.stop()
     
-    #TODO
     def render(self):
         #get the indoor/outdoor temperature series
         zone_temp = []
         for i in range(5):
-            zone_temp.append(np.array(self.indoor_temps[:,i]))
+            zone_temp.append(np.array(self.indoor_temps)[:,i])
         #get the setpoint series
         sp_series = []
         for i in range(5):
-            sp_series.append(np.array(self.setpoints[:,i]))
+            sp_series.append(np.array(self.setpoints)[:,i])
         #get the energy series
         x = range(len(self.setpoints))
         
         for i in range(5):
-            plt.subplot(2,3,i+1)
-            plt.plot(x, zone_temp[i])
-            plt.title(f"zone_{i}_temp")
             plt.xlabel("timestep")
             plt.ylabel("temperature (℃)")
+            plt.plot(x,zone_temp[i],label=f"zone_{i+1}_temperature")
+        plt.legend()
         plt.show()
 
         for i in range(5):
-            plt.subplot(2,3,i+1)
-            plt.plot(x, sp_series[i])
-            plt.title(f"zone_{i}_setpoint")
             plt.xlabel("timestep")
             plt.ylabel("setpoint (℃)")
+            plt.plot(x,sp_series[i],label=f"zone_{i+1}_setpoint")
+        plt.legend()
         plt.show()
 
         plt.plot(x,self.energy)
@@ -201,5 +199,3 @@ class EnergyPlusEnvironment:
         plt.xlabel("timestep")
         plt.ylabel("temperature (℃)")
         plt.show()
-
-        pass

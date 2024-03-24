@@ -8,26 +8,30 @@ import matplotlib.pyplot as plt
 from multi_agent_env import Multi_Agent_Env
 import Config
 device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
+from datetime import datetime
+# 定义Actor网络
 class Actor(nn.Module):
     def __init__(self, state_dim, action_dim):
         super(Actor, self).__init__()
         self.fc1 = nn.Linear(state_dim, 64)
-        self.fc2 = nn.Linear(64, 128)
-        self.fc3 = nn.Linear(128,action_dim)
+        self.fc2 = nn.Linear(64, 32)
+        self.fc3 = nn.Linear(32,16)
+        self.fc4 = nn.Linear(16,action_dim)
         
     def forward(self, x):
         x = F.relu(self.fc1(x))
         x = F.relu(self.fc2(x))
-        x = F.softmax(self.fc3(x), dim=-1)
+        x = F.relu(self.fc3(x))
+        x = F.softmax(self.fc4(x), dim=-1)
         return x
 
 # 定义Critic网络
 class Critic(nn.Module):
     def __init__(self, state_dim):
         super(Critic, self).__init__()
-        self.fc1 = nn.Linear(state_dim, 128)
-        self.fc2 = nn.Linear(128, 64)
-        self.fc3 = nn.Linear(64, 1)
+        self.fc1 = nn.Linear(state_dim, 64)
+        self.fc2 = nn.Linear(64, 32)
+        self.fc3 = nn.Linear(32, 1)
         
     def forward(self, x):
         x = F.relu(self.fc1(x))
@@ -52,12 +56,13 @@ class A2C_MA:
         6. 难以学习个体策略：共享 Critic 网络可能会限制智能体学习个体策略的能力。由于 Critic 网络是共享的，它可能更倾向于学习全局性的策略，而忽视个体智能体的差异性和特殊需求。
         '''
         self.critic = Critic(state_dim).to(device)
-        self.actor_optimizers =[ optim.Adam(self.actors[i].parameters(), lr=0.001) for i in range(num_agnets)]
-        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=0.001)
+        self.actor_optimizers =[ optim.Adam(self.actors[i].parameters(), lr=0.002) for i in range(num_agnets)]
+        self.critic_optimizer = optim.Adam(self.critic.parameters(), lr=0.01)
         
     
     def get_action(self, agent_index, state):
-        state_ = torch.FloatTensor(state).unsqueeze(0).to(device)
+
+        state_ = torch.FloatTensor(state[agent_index]).unsqueeze(0).to(device)
         action_probs = self.actors[agent_index](state_)
         dist = Categorical(action_probs)
         action = dist.sample()
@@ -65,8 +70,8 @@ class A2C_MA:
 
     def update(self, agent_index, states, actions, rewards, next_states, dones, gamma=0.99):
          
-        nxt_state = torch.FloatTensor(next_states[-1]).to(device=device)
-        states_ = torch.FloatTensor(states).to(device=device)
+        nxt_state = torch.FloatTensor(next_states[-1][agent_index]).to(device=device)
+        states_ = torch.FloatTensor(np.array(states)[:,agent_index]).to(device=device)
         actions_ = torch.LongTensor(np.array(actions)[:,agent_index]).unsqueeze(1).to(device=device)
         rewards_ = torch.FloatTensor(np.array(rewards)[:,agent_index]).unsqueeze(1).to(device=device)
         dones_ = torch.FloatTensor(dones).unsqueeze(1).to(device=device)
@@ -96,25 +101,6 @@ class A2C_MA:
         critic_loss.backward()
         self.critic_optimizer.step()
 
-        # value = self.critic(state.unsqueeze(0)).squeeze(0)
-        # next_value = self.critic(next_state.unsqueeze(0)).squeeze(0)
-        # advantage = reward + gamma * (1 - done) * next_value - value
-        
-        # # 更新 Critic 网络
-        # critic_loss = nn.MSELoss()(value, reward + gamma * (1 - done) * next_value)
-        
-        # self.critic_optimizer.zero_grad()
-        # critic_loss.backward()
-        # self.critic_optimizer.step()
-        
-        # # 更新 Actor 网络
-        # action_probs = self.actor(state.unsqueeze(0)).squeeze(0)
-        # log_probs = torch.log(action_probs.gather(1, action))
-        # actor_loss = -(log_probs * advantage.detach()).mean()
-        
-        # self.actor_optimizer.zero_grad()
-        # actor_loss.backward()
-        # self.actor_optimizer.step()
 
     def discount_with_dones(self, next_value, rewards, dones):
         returns = []
@@ -138,58 +124,85 @@ class A2C_MA:
         self.critic.load_state_dict(torch.load("ma_critic.pth"))
 
         
-def train_multi_agent(env, ma_agent: A2C_MA,num_episodes):
-    max_reward = float("-inf")
-    episodes = []
-    rewards_ = []
-    
+    def train_multi_agent(self, env, num_episodes):
+        start = datetime.now()
 
-    for i in range(num_episodes):
+        max_reward = float("-inf")
+        episodes = []
+        rewards_ = []
+        
+
+        for i in range(num_episodes):
+            state = env.reset()
+            done = False
+
+            size = self.num_agnets
+            states = []
+            actions = []
+            rewards = []
+            next_states = []
+            dones = []
+            
+
+            while not done:
+                ma_actions = []
+                for agent_index in range(size):
+                    ma_action = self.get_action(agent_index, state=state)
+                    ma_actions.append(ma_action)
+
+                next_state, reward, done = env.step(ma_actions)
+                states.append(state)
+                actions.append(ma_actions) # 二维数组
+                rewards.append(reward) # 返回的reward是一个数组
+                next_states.append(next_state)
+                dones.append(done)
+
+                state = next_state
+            
+            #update到底是每次step后就执行还是一个回合后就执行？
+            #如果一个回合有限step可以在一个回合后执行，如果无限，则可以每次step更新
+            for idx in range(size):
+                self.update(idx, states, actions, rewards, next_states, dones, 0.99)
+            
+            total_reward = np.sum(rewards)
+            episodes.append(i)
+            rewards_.append(total_reward)
+
+            if total_reward > max_reward:
+                max_reward = total_reward
+                self.save()
+            
+            print(f"training process: {(i/num_episodes):.2%}")
+        end = datetime.now()
+        run_time = end - start
+        print("running time: %s "%run_time)
+        # show the result
+        plt.plot(episodes, rewards_, color = 'r')
+        plt.xlabel("iterations")
+        plt.ylabel("reward")
+        plt.title("Multi-Agent training process")
+        plt.show()
+    def test(self):
+        cfg = Config.config()
+        env = Multi_Agent_Env(cfg=cfg)
+        self.load()
         state = env.reset()
         done = False
-
-        size = ma_agent.num_agnets
-        states = []
-        actions = []
-        rewards = []
-        next_states = []
-        dones = []
-        
+        size = self.num_agnets
 
         while not done:
             ma_actions = []
             for agent_index in range(size):
-                ma_action = ma_agent.get_action(agent_index, state=state)
+                ma_action = self.get_action(agent_index, state=state)
                 ma_actions.append(ma_action)
-
             next_state, reward, done = env.step(ma_actions)
-            states.append(state)
-            actions.append(ma_actions) # 二维数组
-            rewards.append(reward) # 返回的reward是一个数组
-            next_states.append(next_state)
-            dones.append(done)
-
             state = next_state
-        
-        #update到底是每次step后就执行还是一个回合后就执行？
-        #如果一个回合有限step可以在一个回合后执行，如果无限，则可以每次step更新
-        for idx in range(size):
-            ma_agent.update(idx, states, actions, rewards, next_states, dones, 0.99)
-        
-        total_reward = np.sum(rewards)
-        episodes.append(i)
-        rewards_.append(total_reward)
-
-        if total_reward > max_reward:
-            max_reward = total_reward
-            ma_agent.save()
-    
-    # show the result
-    plt.plot(episodes, rewards_, color = 'r')
-    plt.show()
+        env.energyplus.stop()
+        print(env.total_reward, env.total_energy, env.total_temp_penalty)
 
 if __name__ == "__main__":
     cfg = Config.config()
     env = Multi_Agent_Env(cfg=cfg)
-    agents = A2C_MA(5, env.observation_space_size, env.action_space_size)
-    train_multi_agent(env, agents, 100)
+    agents = A2C_MA(5, 5, env.action_space_size)
+    agents.train_multi_agent(env, 200)
+

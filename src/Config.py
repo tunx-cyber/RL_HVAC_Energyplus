@@ -9,7 +9,7 @@ class config:
         # max acceptable indoor temperature
         self.T_MAX = 24
         # min acceptable indoor temperature (C)
-        self.T_MIN = 19
+        self.T_MIN = 20
         # the set of neighbors of zone i
         self.neighbors={}
         # acceptable CO2 concentration (ppm)

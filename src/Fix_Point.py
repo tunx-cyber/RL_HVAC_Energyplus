@@ -11,4 +11,5 @@ class FixBased(RuleBased.RuleBased):
 fix_test = FixBased()
 fix_test.run()
 fix_test.ep.energyplus_exec_thread.join()
-print("rule based result: ", fix_test.get_result())
+fix_test.env
+print("fix point result: ", fix_test.get_result())

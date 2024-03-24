@@ -4,6 +4,7 @@ import math
 from queue import Queue, Full, Empty
 import numpy as np
 import Config
+import matplotlib.pyplot as plt
 # data = []
 class RBEnergyPlus(Energyplus.EnergyPlus):
     def __init__(self,obs_queue: Queue = Queue(1), act_queue: Queue = Queue(1), action_space = None, get_action_func = None) -> None:
@@ -38,6 +39,19 @@ class RuleBased:
         self.energy_cost = 0
         self.temp_penalty = 0
 
+        self.temps_name = ["zone_air_temp_"+str(i+1) for i in range(5)]
+        self.occups_name = ["people_"+str(i+1) for i in range(5)]
+        self.total_energy = 0
+        self.total_temp_penalty = 0
+        self.total_reward = 0
+
+        #get the indoor/outdoor temperature series
+        self.indoor_temps = []
+        self.outdoor_temp = []
+        #get the setpoint series
+        self.setpoints = []
+        #get the energy series
+        self.energy = []
     
     def run(self):
         if self.ep is not None:
@@ -64,31 +78,36 @@ class RuleBased:
                 timeout = 2
                 try:
                     self.last_obs = obs = self.obs_queue.get(timeout=timeout)
+
+                    self.indoor_temps.append([obs[x] for x in self.temps_name])
+                    self.outdoor_temp.append(obs["outdoor_air_drybulb_temperature"])
+
                     self.compute_reward()
                     action = self.get_action()
+                    self.setpoints.append(action)
                     self.act_queue.put(action, timeout=timeout)
                 except(Full, Empty):
                     done = True
                     obs = self.last_obs           
 
     def compute_reward(self):
+        # according to the meters and variables to compute
         obs = self.last_obs
-
+        
+        # compute the temperature reward
         temp_reward = 0
-
-        temps = ["zone_air_temp_"+str(i+1) for i in range(5)]
-        occups = ["people_"+str(i+1) for i in range(5)]
 
         temps_vals = []
         occups_vals = []
-
-        for temp in temps:
+        for temp in self.temps_name:
             temps_vals.append(obs[temp])
-        for occup in occups:
+        for occup in self.occups_name:
             occups_vals.append(obs[occup])
-
+        
+        # TODO find a good function to evaluate the temperature reward
+        # 520 oocups timesteps
         for i in range(len(temps_vals)):
-            if occups_vals[i] <= 0.001:
+            if occups_vals[i] < 1:
                 temp_reward += 0
             elif self.cfg.T_MIN <= temps_vals[i] <= self.cfg.T_MAX:
                 temp_reward += 1
@@ -96,17 +115,20 @@ class RuleBased:
                 temp_reward += -1
             else:
                 temp_reward += -1
-
-
-        elec_cost = obs["elec_cooling"] / 3600000
-
-        self.energy_cost += elec_cost
-
-        self.temp_penalty += temp_reward
         
-        energy_reward = - elec_cost
+        # energy reward
+        energy = obs["elec_cooling"] / 3600000
+        self.energy.append(energy)
+        energy_reward = - energy
+        self.total_energy += energy
 
-        self.reward += temp_reward*0.1 + energy_reward*0.9
+        # temperature reward
+        self.total_temp_penalty += temp_reward
+
+        # reward combination
+        reward = temp_reward*0.07 + energy_reward
+        
+        self.total_reward += reward
 
     def get_action(self):
 
@@ -141,3 +163,41 @@ class RuleBased:
 
     def get_result(self):
         return self.reward, self.energy_cost, self.temp_penalty
+    
+    def render(self):
+        #get the indoor/outdoor temperature series
+        zone_temp = []
+        for i in range(5):
+            zone_temp.append(np.array(self.indoor_temps)[:,i])
+        #get the setpoint series
+        sp_series = []
+        for i in range(5):
+            sp_series.append(np.array(self.setpoints)[:,i])
+        #get the energy series
+        x = range(len(self.setpoints))
+        
+        for i in range(5):
+            plt.xlabel("timestep")
+            plt.ylabel("temperature (℃)")
+            plt.plot(x,zone_temp[i],label=f"zone_{i+1}_temperature")
+        plt.legend()
+        plt.show()
+
+        for i in range(5):
+            plt.xlabel("timestep")
+            plt.ylabel("setpoint (℃)")
+            plt.plot(x,sp_series[i],label=f"zone_{i+1}_setpoint")
+        plt.legend()
+        plt.show()
+
+        plt.plot(x,self.energy)
+        plt.title("energy cost")
+        plt.xlabel("timestep")
+        plt.ylabel("energy cost (kwh)")
+        plt.show()
+
+        plt.plot(x, self.outdoor_temp)
+        plt.title("outdoor temperature")
+        plt.xlabel("timestep")
+        plt.ylabel("temperature (℃)")
+        plt.show()

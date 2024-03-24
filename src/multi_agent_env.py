@@ -3,12 +3,12 @@ from Energyplus import Queue
 import Config
 from Energyplus import np
 from Energyplus import Full, Empty
-a = np.linspace(17,26,10)
+a = np.linspace(19,24,12)
 def get_action_fun(acts, idxs):
     real_act = []
     for i in idxs:
         real_act.append(acts[i]) 
-        real_act.append(acts[i]) 
+        real_act.append(acts[i]-1) 
     return real_act
 
 class MAEnergyPlus(EnergyPlus):
@@ -61,8 +61,13 @@ class Multi_Agent_Env:
         self.energyplus.start(file_suffix)
 
         obs = self.obs_queue.get()
+        obs_value = list(obs.values())
+        agent_obs_vec = []
+        for i in range(5):
+            single_obs = [obs_value[i], obs_value[i+5], obs_value[10], obs_value[11], obs_value[12]]
+            agent_obs_vec.append(single_obs)
         self.last_obs = obs
-        return np.array(list(obs.values()))
+        return np.array(agent_obs_vec)
     
     # predict next observation
     # mutil agents' actions
@@ -88,9 +93,12 @@ class Multi_Agent_Env:
         
         reward = self.get_reward() 
 
-        obs_vec = np.array(list(obs.values()))
-
-        return obs_vec, reward, done
+        obs_value = np.array(list(obs.values()))
+        agent_obs_vec = []
+        for i in range(5):
+            single_obs = [obs_value[i], obs_value[i+5], obs_value[10], obs_value[11], obs_value[12]]
+            agent_obs_vec.append(single_obs)
+        return agent_obs_vec, reward, done
 
     def get_reward(self):
 
@@ -112,7 +120,7 @@ class Multi_Agent_Env:
 
         # TODO find a good function to evaluate the temperature reward
         for i in range(n):
-            if occups_vals[i] <= 0.001:
+            if occups_vals[i] <= 1:
                 ma_temp_reward.append(0)
 
             elif self.cfg.T_MIN <= temps_vals[i] <= self.cfg.T_MAX:
@@ -129,12 +137,12 @@ class Multi_Agent_Env:
         energy_reward = - energy
         
         for idx in range(n):
-            ma_rewards.append(ma_temp_reward[idx] * 0.1 + energy_reward / n )
+            ma_rewards.append(ma_temp_reward[idx] * 0.1 + 0.9*energy_reward / n )
         
         self.total_energy += energy
 
         self.total_temp_penalty += sum(ma_temp_reward)
 
-        self.total_reward += self.total_temp_penalty * 0.1 + energy_reward
+        self.total_reward += sum(ma_temp_reward) * 0.1 + 0.9*energy_reward #0.1 0.9效果比较好
 
         return ma_rewards

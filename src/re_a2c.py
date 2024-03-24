@@ -16,9 +16,9 @@ device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
 class Actor(nn.Module):
     def __init__(self, state_dim, action_dim):
         super(Actor, self).__init__()
-        self.fc1 = nn.Linear(state_dim, 40)
-        self.fc2 = nn.Linear(40, 32)
-        self.fc3 = nn.Linear(32,action_dim)
+        self.fc1 = nn.Linear(state_dim, 128)
+        self.fc2 = nn.Linear(128, 64)
+        self.fc3 = nn.Linear(64,action_dim)
         
     def forward(self, x) -> Categorical:
         x = F.relu(self.fc1(x))
@@ -31,9 +31,9 @@ class Actor(nn.Module):
 class Critic(nn.Module):
     def __init__(self, state_dim):
         super(Critic, self).__init__()
-        self.fc1 = nn.Linear(state_dim, 56)
-        self.fc2 = nn.Linear(56, 20)
-        self.fc3 = nn.Linear(20, 1)
+        self.fc1 = nn.Linear(state_dim, 128)
+        self.fc2 = nn.Linear(128, 32)
+        self.fc3 = nn.Linear(32, 1)
         
     def forward(self, x):
         x = F.relu(self.fc1(x))
@@ -87,6 +87,10 @@ class A2C:
     def save(self):
         torch.save(self.actor.state_dict(), "actor_a2c.pth")
         torch.save(self.critic.state_dict(), "critic_a2c.pth")
+    
+    def load(self):
+        self.actor.load_state_dict(torch.load("actor_a2c.pth"))
+        self.critic.load_state_dict(torch.load("critic_a2c.pth"))
 
     def train(self, eps, env:EnergyplusEnv.EnergyPlusEnvironment):
         max_reward = -200
@@ -127,13 +131,13 @@ class A2C:
 
             x.append(i)
             y.append(total_reward)
-        
+            print(f"training process: {(i/eps):.2%}")
         return x, y
     
     def test(self, env:EnergyplusEnv.EnergyPlusEnvironment):
-        self.actor.load_state_dict(torch.load("actor_a2c.pth"))
-        self.critic.load_state_dict(torch.load("critic_a2c.pth"))
-        
+        # self.actor.load_state_dict(torch.load("actor_a2c.pth"))
+        # self.critic.load_state_dict(torch.load("critic_a2c.pth"))
+        self.load()
         state = env.reset("test")
         done = False
         while not done:
@@ -143,7 +147,7 @@ class A2C:
             action = dist.sample()
             next_state, reward, done = env.step(action)
             state = next_state
-        
+        env.render()
         print(f"a2c result: {env.total_reward, env.total_energy, env.total_temp_penalty}")
 
     
@@ -153,12 +157,13 @@ if __name__ == '__main__':
     env = EnergyplusEnv.EnergyPlusEnvironment(cfg)
     agent = A2C(env.observation_space_size, env.action_space_size, 0.001, 0.99)
     start = datetime.now()
-    x,y = agent.train(eps=200,env=env)
+    agent.load()
+    x,y = agent.train(eps=200 ,env=env)
+    env.close()
     end = datetime.now()
     print(f"trainning time is {end-start}")
     plt.plot(x,y,color='b')
-    
+    plt.xlabel("iteration")
+    plt.ylabel("reward")
     plt.show()
     agent.test(env)
-
-
