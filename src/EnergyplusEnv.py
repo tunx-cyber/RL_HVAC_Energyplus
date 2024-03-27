@@ -12,7 +12,7 @@ def get_action_f(action_space, action_idx):
     a = action_space[action_idx]
     for i in range(len(a)):
         real_act.append(a[i])
-        real_act.append(a[i])
+        real_act.append(a[i]-3)
     return real_act
 
 class EnergyPlusEnvironment:
@@ -47,6 +47,8 @@ class EnergyPlusEnvironment:
         self.setpoints = []
         #get the energy series
         self.energy = []
+        #get the occupancy situation
+        self.occup_count = []
     # return the first observation
     def reset(self, file_suffix = "defalut"):
         self.total_temp_penalty = 0
@@ -56,6 +58,7 @@ class EnergyPlusEnvironment:
         self.outdoor_temp.clear()
         self.setpoints.clear()
         self.energy.clear()
+        self.occup_count.clear()
 
         self.energyplus.stop()
         self.episode += 1
@@ -80,6 +83,8 @@ class EnergyPlusEnvironment:
         self.last_obs = obs
 
         self.indoor_temps.append([obs[x] for x in self.temps_name])
+        self.occup_count.append([obs[x] for x in self.occups_name])
+
         self.outdoor_temp.append(obs["outdoor_air_drybulb_temperature"])
 
         return np.array(list(obs.values()))
@@ -103,6 +108,7 @@ class EnergyPlusEnvironment:
                 
                 self.last_obs = obs = self.obs_queue.get(timeout=timeout)
                 self.indoor_temps.append([obs[x] for x in self.temps_name])
+                self.occup_count.append([obs[x] for x in self.occups_name])
                 self.outdoor_temp.append(obs["outdoor_air_drybulb_temperature"])
 
             except(Full, Empty):
@@ -135,7 +141,7 @@ class EnergyPlusEnvironment:
             if occups_vals[i] < 1:
                 temp_reward += 0
             elif self.cfg.T_MIN <= temps_vals[i] <= self.cfg.T_MAX:
-                temp_reward += 1
+                temp_reward += 0
             elif temps_vals[i] < self.cfg.T_MIN :
                 temp_reward += -1
             else:
@@ -151,7 +157,7 @@ class EnergyPlusEnvironment:
         self.total_temp_penalty += temp_reward
 
         # reward combination
-        reward = temp_reward*0.07 + energy_reward
+        reward = temp_reward*0.1 + energy_reward*0.9
         
         self.total_reward += reward
 
@@ -167,9 +173,14 @@ class EnergyPlusEnvironment:
         zone_temp = []
         for i in range(5):
             zone_temp.append(np.array(self.indoor_temps)[:,i])
+        
+        # get occupancy
+        zone_occupy = []
+        for i in range(5):
+            zone_occupy.append(np.array(self.occup_count)[:,i])
         #get the setpoint series
         sp_series = []
-        for i in range(5):
+        for i in range(0,10,2):
             sp_series.append(np.array(self.setpoints)[:,i])
         #get the energy series
         x = range(len(self.setpoints))
@@ -185,6 +196,12 @@ class EnergyPlusEnvironment:
             plt.xlabel("timestep")
             plt.ylabel("setpoint (℃)")
             plt.plot(x,sp_series[i],label=f"zone_{i+1}_setpoint")
+        plt.legend()
+        plt.show()
+        for i in range(5):
+            plt.xlabel("timestep")
+            plt.ylabel("occupancy")
+            plt.plot(x,zone_occupy[i],label=f"zone_{i+1}_people_occupant_count ")
         plt.legend()
         plt.show()
 

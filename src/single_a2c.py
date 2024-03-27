@@ -85,12 +85,12 @@ class A2C:
         self.critic_optim.step()
         pass
     def save(self):
-        torch.save(self.actor.state_dict(), "actor_a2c.pth")
-        torch.save(self.critic.state_dict(), "critic_a2c.pth")
+        torch.save(self.actor.state_dict(), "actor_a2c_best.pth")
+        torch.save(self.critic.state_dict(), "critic_a2c_best.pth")
     
     def load(self):
-        self.actor.load_state_dict(torch.load("actor_a2c.pth"))
-        self.critic.load_state_dict(torch.load("critic_a2c.pth"))
+        self.actor.load_state_dict(torch.load("actor_a2c_best.pth"))
+        self.critic.load_state_dict(torch.load("critic_a2c_best.pth"))
 
     def train(self, eps, env:EnergyplusEnv.EnergyPlusEnvironment):
         max_reward = -200
@@ -158,12 +158,13 @@ if __name__ == '__main__':
     agent = A2C(env.observation_space_size, env.action_space_size, 0.001, 0.99)
     start = datetime.now()
     agent.load()
-    x,y = agent.train(eps=200 ,env=env)
-    env.close()
-    end = datetime.now()
-    print(f"trainning time is {end-start}")
-    plt.plot(x,y,color='b')
-    plt.xlabel("iteration")
-    plt.ylabel("reward")
-    plt.show()
+    # x,y = agent.train(eps=200 ,env=env)
+    # env.close()
+    # end = datetime.now()
+    # print(f"trainning time is {end-start}")
+    # plt.plot(x,y,color='b')
+    # plt.title("Single-Agent training process")
+    # plt.xlabel("iteration")
+    # plt.ylabel("reward")
+    # plt.show()
     agent.test(env)

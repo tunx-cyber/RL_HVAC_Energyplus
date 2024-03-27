@@ -33,10 +33,10 @@
 # a2c_test = A2C_Test()
 # a2c_res = a2c_test.run()
 
-import re_a2c
-cfg = re_a2c.Config.config()
-env = re_a2c.EnergyplusEnv.EnergyPlusEnvironment(cfg)
-actest = re_a2c.A2C(env.observation_space_size, env.action_space_size, 0.001, 0.99)
+import single_a2c
+cfg = single_a2c.Config.config()
+env = single_a2c.EnergyplusEnv.EnergyPlusEnvironment(cfg)
+actest = single_a2c.A2C(env.observation_space_size, env.action_space_size, 0.001, 0.99)
 actest.test(env=env)
 import RuleBased
 rule_test = RuleBased.RuleBased()

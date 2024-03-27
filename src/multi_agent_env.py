@@ -3,12 +3,13 @@ from Energyplus import Queue
 import Config
 from Energyplus import np
 from Energyplus import Full, Empty
+from matplotlib import pyplot as plt
 a = np.linspace(19,24,12)
 def get_action_fun(acts, idxs):
     real_act = []
     for i in idxs:
         real_act.append(acts[i]) 
-        real_act.append(acts[i]-1) 
+        real_act.append(acts[i]-3) 
     return real_act
 
 class MAEnergyPlus(EnergyPlus):
@@ -40,10 +41,27 @@ class Multi_Agent_Env:
         self.total_temp_penalty = 0
         self.total_reward = 0
 
+        self.temps_name = ["zone_air_temp_"+str(i+1) for i in range(5)]
+        self.occups_name = ["people_"+str(i+1) for i in range(5)]
+
+        #get the indoor/outdoor temperature series
+        self.indoor_temps = []
+        self.outdoor_temp = []
+        #get the setpoint series
+        self.setpoints = []
+        #get the energy series
+        self.energy = []
+
     # return a first observation
     def reset(self, file_suffix = "defalut"):
         self.energyplus.stop()
-        
+        self.total_temp_penalty = 0
+        self.total_energy = 0
+        self.total_reward = 0
+        self.indoor_temps.clear()
+        self.outdoor_temp.clear()
+        self.setpoints.clear()
+        self.energy.clear()
 
         if self.energyplus is not None:
             self.energyplus.stop()
@@ -66,7 +84,10 @@ class Multi_Agent_Env:
         for i in range(5):
             single_obs = [obs_value[i], obs_value[i+5], obs_value[10], obs_value[11], obs_value[12]]
             agent_obs_vec.append(single_obs)
+
         self.last_obs = obs
+        self.indoor_temps.append([obs[x] for x in self.temps_name])
+        self.outdoor_temp.append(obs["outdoor_air_drybulb_temperature"])
         return np.array(agent_obs_vec)
     
     # predict next observation
@@ -85,8 +106,13 @@ class Multi_Agent_Env:
         else:
             timeout = 2
             try:
+                self.setpoints.append(get_action_fun(a,actions))
                 self.act_queue.put(actions,timeout=timeout)
+
                 self.last_obs = obs = self.obs_queue.get(timeout=timeout)
+                self.indoor_temps.append([obs[x] for x in self.temps_name])
+                self.outdoor_temp.append(obs["outdoor_air_drybulb_temperature"])
+
             except(Full, Empty):
                 done = True
                 obs = self.last_obs
@@ -124,7 +150,7 @@ class Multi_Agent_Env:
                 ma_temp_reward.append(0)
 
             elif self.cfg.T_MIN <= temps_vals[i] <= self.cfg.T_MAX:
-                ma_temp_reward.append(1)
+                ma_temp_reward.append(0)
 
             elif temps_vals[i] < self.cfg.T_MIN :
                 ma_temp_reward.append(-1)
@@ -134,6 +160,7 @@ class Multi_Agent_Env:
         
         # energy reward
         energy = obs["elec_cooling"] / 3600000
+        self.energy.append(energy)
         energy_reward = - energy
         
         for idx in range(n):
@@ -146,3 +173,41 @@ class Multi_Agent_Env:
         self.total_reward += sum(ma_temp_reward) * 0.1 + 0.9*energy_reward #0.1 0.9效果比较好
 
         return ma_rewards
+    
+    def render(self):
+        #get the indoor/outdoor temperature series
+        zone_temp = []
+        for i in range(5):
+            zone_temp.append(np.array(self.indoor_temps)[:,i])
+        #get the setpoint series
+        sp_series = []
+        for i in range(0,10,2):
+            sp_series.append(np.array(self.setpoints)[:,i])
+        #get the energy series
+        x = range(len(self.setpoints))
+        
+        for i in range(5):
+            plt.xlabel("timestep")
+            plt.ylabel("temperature (℃)")
+            plt.plot(x,zone_temp[i],label=f"zone_{i+1}_temperature")
+        plt.legend()
+        plt.show()
+
+        for i in range(5):
+            plt.xlabel("timestep")
+            plt.ylabel("setpoint (℃)")
+            plt.plot(x,sp_series[i],label=f"zone_{i+1}_setpoint")
+        plt.legend()
+        plt.show()
+
+        plt.plot(x,self.energy)
+        plt.title("energy cost")
+        plt.xlabel("timestep")
+        plt.ylabel("energy cost (kwh)")
+        plt.show()
+
+        plt.plot(x, self.outdoor_temp)
+        plt.title("outdoor temperature")
+        plt.xlabel("timestep")
+        plt.ylabel("temperature (℃)")
+        plt.show()

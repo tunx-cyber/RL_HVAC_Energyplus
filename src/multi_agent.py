@@ -118,16 +118,16 @@ class A2C_MA:
         torch.save(self.critic.state_dict(), "ma_critic.pth")
     
     def load(self):
-        state_dict_dict = torch.load("ma_actors.pth")
+        state_dict_dict = torch.load("ma_actors_test.pth")
         for i, agent_model in enumerate(self.actors):
             agent_model.load_state_dict(state_dict_dict[f'agent_{i+1}'])
-        self.critic.load_state_dict(torch.load("ma_critic.pth"))
+        self.critic.load_state_dict(torch.load("ma_critic_test.pth"))
 
         
     def train_multi_agent(self, env, num_episodes):
         start = datetime.now()
 
-        max_reward = float("-inf")
+        max_reward = -200
         episodes = []
         rewards_ = []
         
@@ -198,11 +198,14 @@ class A2C_MA:
             next_state, reward, done = env.step(ma_actions)
             state = next_state
         env.energyplus.stop()
+        env.render()
         print(env.total_reward, env.total_energy, env.total_temp_penalty)
 
 if __name__ == "__main__":
     cfg = Config.config()
     env = Multi_Agent_Env(cfg=cfg)
     agents = A2C_MA(5, 5, env.action_space_size)
-    agents.train_multi_agent(env, 200)
+    agents.load()
+    # agents.train_multi_agent(env, 200)
+    agents.test()
 

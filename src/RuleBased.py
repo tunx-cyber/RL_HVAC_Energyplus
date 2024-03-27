@@ -110,7 +110,7 @@ class RuleBased:
             if occups_vals[i] < 1:
                 temp_reward += 0
             elif self.cfg.T_MIN <= temps_vals[i] <= self.cfg.T_MAX:
-                temp_reward += 1
+                temp_reward += 0
             elif temps_vals[i] < self.cfg.T_MIN :
                 temp_reward += -1
             else:
@@ -162,7 +162,7 @@ class RuleBased:
         return action_val     
 
     def get_result(self):
-        return self.reward, self.energy_cost, self.temp_penalty
+        return self.total_reward, self.total_energy, self.total_temp_penalty
     
     def render(self):
         #get the indoor/outdoor temperature series
@@ -171,7 +171,7 @@ class RuleBased:
             zone_temp.append(np.array(self.indoor_temps)[:,i])
         #get the setpoint series
         sp_series = []
-        for i in range(5):
+        for i in range(0,10,2):
             sp_series.append(np.array(self.setpoints)[:,i])
         #get the energy series
         x = range(len(self.setpoints))
