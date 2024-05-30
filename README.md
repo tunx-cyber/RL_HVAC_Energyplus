@@ -1,4 +1,4 @@
-Reinforcement Learning
+# Reinforcement Learning
 
 强化学习（reinforcement learning，RL）讨论的问题是智能体（agent）怎么在复杂、不确定的环 境（environment）里面去最大化它能获得的奖励。如图 1 所示，强化学习由两部分组成：智能体和环境。 在强化学习过程中，智能体与环境一直在交互。智能体在环境里面获取某个状态后，它会利用该状态输出 一个动作（action），这个动作也称为决策（decision）。然后这个动作会在环境之中被执行，环境会根据智 能体采取的动作，输出下一个状态以及当前这个动作带来的奖励。智能体的目的就是尽可能多地从环境中获取奖励。
 
@@ -252,7 +252,7 @@ Q：怎么使用期望值代替采样的值呢？ A：这里就需要引入基�
 
 
 
-EnergyPlus Environment
+# EnergyPlus Environment
 
 下载地址：https://energyplus.net/
 
@@ -292,12 +292,38 @@ The legacy file format is a text-based format that describes each input object i
 
 https://nrel.github.io/EnergyPlus/api/python/
 
-经过对文档的研究，发现主要的api如下。
-
 主要是通过注册回调函数，在ep执行的过程中，插入我们需要执行的操作即可。
 
 
 
-过程中问题很多：
+# 如何运行
 
-比如多进程的时候，由于本人电脑配置不太行，训练时间长，内存小，一次只能同时训练一个，但是同时运行多个agent在训练初期是可以的，中期会报错内存不足而导致失败，此方法理论可行。
+下载energyplus
+
+修改src/EnergyPlus.py中的路径
+
+```python
+sys.path.insert(0,r"C:\EnergyPlusV23-1-0")
+```
+
+根据自己情况选择下列文件
+
+```py
+idf_file = "./resource/HVACTemplate-5ZoneVAVFanPowered.idf"
+epw_file = "./resource/USA_CO_Golden-NREL.724666_TMY3.epw"
+idd_file = r"C:\EnergyPlusV23-1-0\Energy+.idd"
+```
+
+在code目录下打开文件，否则可能因为工作区的问题运行不了
+
+可以直接执行的py文件如下
+
+```bash
+src/Fix_Point.py
+src/multi_agent.py
+src/RuleBased.py
+src/single_a2c.py
+src/test.py
+```
+
+pth都是一些训练的模型
